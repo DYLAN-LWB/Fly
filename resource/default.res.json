@@ -2,7 +2,7 @@
 	"groups": [
 		{
 			"name": "preload",
-			"keys": "description_json,davert_right_png,attention_png,bg_png,black_png,black2_png,gamebody_json,ranking_png,shareGui_png,shareGui2_png,start_png,person_png"
+			"keys": "description_json,davert_right_png,attention_png,bg_png,black_png,gamebody_json,ranking_png,shareGui_png,start_png,person_png"
 		}
 	],
 	"resources": [
@@ -32,11 +32,6 @@
 			"url": "black.png"
 		},
 		{
-			"name": "black2_png",
-			"type": "image",
-			"url": "black2.png"
-		},
-		{
 			"name": "gamebody_json",
 			"type": "sheet",
 			"url": "gamebody.json",
@@ -51,11 +46,6 @@
 			"name": "shareGui_png",
 			"type": "image",
 			"url": "shareGui.png"
-		},
-		{
-			"name": "shareGui2_png",
-			"type": "image",
-			"url": "shareGui2.png"
 		},
 		{
 			"name": "start_png",

@@ -11,7 +11,7 @@ var Home = (function (_super) {
     function Home() {
         var _this = _super.call(this) || this;
         _this._playCount = -1; //挑战次数
-        _this._isPortraitScreen = false; //竖屏
+        _this._isPortraitScreen = true; //竖屏
         _this._info = new Info(); //公用信息表
         _this._pageUrl = window.location.href; //获取当前页面地址
         _this.addEventListener(egret.Event.ADDED_TO_STAGE, _this.createGameScene, _this);
@@ -40,7 +40,7 @@ var Home = (function (_super) {
         this.getUserInfo();
         //首页显示广告
         //test
-        this.addChild(new Advert(this.stage.stageWidth, this.stage.stageHeight));
+        this.addChild(new Advert(this.stage.stageWidth, this.stage.stageHeight, this._isPortraitScreen));
     };
     Home.prototype.getUserInfo = function () {
         //test app url
@@ -171,12 +171,12 @@ var Home = (function (_super) {
         else if (parseInt(this._info._isfrom) == 1) {
             this.removeChild(this._playNumText);
             introduce.x = this._isPortraitScreen ? 370 : 480;
-            introduce.y = this._isPortraitScreen ? 600 : 375;
+            introduce.y = this._isPortraitScreen ? 450 : 375;
             introduce.text = "通过手指力度控制倍倍的跳跃轨迹，使其成功捡到单词，单词完整后加速跳跃。 ";
             this._startButton.x = this._isPortraitScreen ? 180 : 660;
-            this._startButton.y = this._isPortraitScreen ? 760 : 570;
+            this._startButton.y = this._isPortraitScreen ? 660 : 570;
             this._rankButton.x = this._isPortraitScreen ? 180 : 850;
-            this._rankButton.y = this._isPortraitScreen ? 910 : 570;
+            this._rankButton.y = this._isPortraitScreen ? 810 : 570;
         }
     };
     //查看排名

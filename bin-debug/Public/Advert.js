@@ -8,18 +8,18 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var Advert = (function (_super) {
     __extends(Advert, _super);
-    function Advert(stageW, stageH) {
+    function Advert(stageW, stageH, isPortrait) {
         var _this = _super.call(this) || this;
         _this.data = [];
         _this.index = 0; //随机到的第几个商品
         //跨域问题
         egret.ImageLoader.crossOrigin = "anonymous";
         _this.graphics.beginFill(0xffffff);
-        _this.graphics.drawRect(0, 0, stageH, 200);
+        _this.graphics.drawRect(0, 0, isPortrait ? stageW : stageH, 200);
         _this.graphics.endFill();
-        _this.x = stageW - 200;
-        _this.y = stageH;
-        _this.rotation = -90;
+        _this.x = isPortrait ? 0 : stageW - 200;
+        _this.y = isPortrait ? stageH - 200 : stageH;
+        _this.rotation = isPortrait ? 0 : -90;
         //请求广告数据
         _this.getAdvertData();
         return _this;

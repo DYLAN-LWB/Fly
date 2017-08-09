@@ -11,7 +11,7 @@ class Home extends egret.DisplayObjectContainer {
     private _alert;	        //弹窗提示
     private _playCount = -1;  //挑战次数
 
-    private _isPortraitScreen: boolean = false; //竖屏
+    private _isPortraitScreen: boolean = true; //竖屏
     private _info = new Info(); //公用信息表
 
     public _pageUrl = window.location.href;	//获取当前页面地址
@@ -41,7 +41,7 @@ class Home extends egret.DisplayObjectContainer {
         
         //首页显示广告
         //test
-        this.addChild(new Advert(this.stage.stageWidth, this.stage.stageHeight));
+        this.addChild(new Advert(this.stage.stageWidth, this.stage.stageHeight, this._isPortraitScreen));
     }
      public getUserInfo() {
 
@@ -190,14 +190,14 @@ class Home extends egret.DisplayObjectContainer {
             this.removeChild(this._playNumText);
 
             introduce.x = this._isPortraitScreen ? 370 : 480;
-            introduce.y = this._isPortraitScreen ? 600 : 375;
+            introduce.y = this._isPortraitScreen ? 450 : 375;
             introduce.text = "通过手指力度控制倍倍的跳跃轨迹，使其成功捡到单词，单词完整后加速跳跃。 ";
  
             this._startButton.x = this._isPortraitScreen ? 180 : 660;
-            this._startButton.y = this._isPortraitScreen ? 760 : 570;
+            this._startButton.y = this._isPortraitScreen ? 660 : 570;
 
             this._rankButton.x = this._isPortraitScreen ? 180 : 850;
-            this._rankButton.y = this._isPortraitScreen ? 910 : 570;
+            this._rankButton.y = this._isPortraitScreen ? 810 : 570;
         }
     }
 

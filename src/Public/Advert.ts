@@ -1,16 +1,16 @@
 class Advert extends egret.Sprite{
-	public constructor(stageW:number, stageH:number) {
+	public constructor(stageW:number, stageH:number, isPortrait:boolean) {
 		 super();
 
 		 //跨域问题
 		 egret.ImageLoader.crossOrigin = "anonymous";
 
 		 this.graphics.beginFill(0xffffff);
-         this.graphics.drawRect(0, 0, stageH, 200);
+         this.graphics.drawRect(0, 0, isPortrait? stageW :stageH, 200);
          this.graphics.endFill();
-		 this.x = stageW - 200;
-		 this.y = stageH;
-		 this.rotation = -90;
+		 this.x = isPortrait? 0 : stageW - 200;
+		 this.y = isPortrait? stageH-200 : stageH;
+		 this.rotation = isPortrait? 0 :-90;
 
 		 //请求广告数据
 		 this.getAdvertData();
