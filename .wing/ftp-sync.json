@@ -1,0 +1,23 @@
+[
+    {
+        "name": "ftp-170808091303",
+        "host": "101.200.81.223",
+        "user": "root",
+        "password": "Wxhyd2016@com",
+        "port": 22,
+        "protocol": "ftp",
+        "remotePath": "Fly/",
+        "passive": false,
+        "debug": false,
+        "privateKeyPath": null,
+        "ignoreDir": [
+            ".out/",
+            ".git/"
+        ],
+        "ignoreFileSuffix": [
+            "diff"
+        ],
+        "diffFile": "ftpdiff-1502154943773.diff",
+        "usediffFile": true
+    }
+]
