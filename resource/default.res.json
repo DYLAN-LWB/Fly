@@ -2,7 +2,7 @@
 	"groups": [
 		{
 			"name": "preload",
-			"keys": "description_json,davert_right_png,attention_png,bg_png,black_png,gamebody_json,ranking_png,shareGui_png,start_png,person_png"
+			"keys": "description_json,davert_right_png,attention_png,bg_png,black_png,gamebody_json,ranking_png,shareGui_png,start_png,person_png,countdown_mp3,bg_mp3"
 		}
 	],
 	"resources": [
@@ -56,6 +56,16 @@
 			"name": "person_png",
 			"type": "image",
 			"url": "person.png"
+		},
+		{
+			"name": "countdown_mp3",
+			"type": "sound",
+			"url": "sound/countdown.mp3"
+		},
+		{
+			"name": "bg_mp3",
+			"type": "sound",
+			"url": "sound/bg.mp3"
 		}
 	]
 }

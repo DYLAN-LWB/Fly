@@ -16,6 +16,7 @@ var Game = (function (_super) {
         _this._characterArray = []; //成语拆分成单个文字
         _this._characterTFArray = []; //textField数组
         _this._remindTFArray = []; //成语提词器
+        _this._scends = 180; //游戏默认180秒
         _this.addEventListener(egret.Event.ADDED_TO_STAGE, _this.createGameScene, _this);
         return _this;
     }
@@ -27,6 +28,12 @@ var Game = (function (_super) {
         this.addTouchEvent();
     };
     Game.prototype.setupViews = function () {
+        var sound = new egret.Sound();
+        sound.addEventListener(egret.Event.COMPLETE, function () {
+            this._backgroundChannel = sound.play(0, 0);
+            this._backgroundChannel.volume = 0.7;
+        }, this);
+        sound.load("resource/sound/bg.mp3");
         //添加对象
         this._person.x = 200;
         this._person.y = 300;
@@ -44,9 +51,9 @@ var Game = (function (_super) {
         //背景
         this._background = new egret.Sprite;
         this._background.x = -this._stageW;
-        this._background.y = -this._stageH;
+        this._background.y = 0;
         this._background.width = 3 * this._stageW;
-        this._background.height = 3 * this._stageH;
+        this._background.height = this._stageH;
         this.addChild(this._background);
         //设置数组		
         var _idiomArray = ["金蝉脱壳", "百里挑一", "背水一战", "天上人间", "不吐不快", "海阔天空", "情非得已", "天下无双", "偷天换日", "八仙过海"];
@@ -57,12 +64,13 @@ var Game = (function (_super) {
         //添加随机文字
         for (var index = 0; index < this._characterArray.length; index++) {
             var _characterTF = new egret.TextField();
-            _characterTF.x = Math.random() * 3 * this._stageW;
-            _characterTF.y = Math.random() * 3 * this._stageH;
+            _characterTF.x = Math.random() * 2.6 * this._stageW + 0.2 * this._stageW;
+            _characterTF.y = Math.random() * this._stageH;
             _characterTF.width = 80;
             _characterTF.height = 80;
             _characterTF.text = this._characterArray[index];
             _characterTF.size = 35;
+            _characterTF.textColor = 0x000000;
             _characterTF.textAlign = egret.HorizontalAlign.CENTER;
             _characterTF.verticalAlign = egret.VerticalAlign.MIDDLE;
             this._background.addChild(_characterTF);
@@ -98,6 +106,23 @@ var Game = (function (_super) {
         this._currentTF.text = this._allIdiomArray[index];
         this._currentTF.fontFamily = "Microsoft YaHei";
         this.addChild(this._currentTF);
+        //倒计时提示
+        this._scendsTF = new egret.TextField();
+        this._scendsTF.x = this.stage.stageWidth * 0.75;
+        this._scendsTF.y = 20;
+        this._scendsTF.width = this.stage.stageWidth * 0.25;
+        this._scendsTF.height = 55;
+        this._scendsTF.fontFamily = "Microsoft YaHei";
+        this._scendsTF.textColor = 0xff6c14;
+        this._scendsTF.textAlign = egret.HorizontalAlign.CENTER;
+        this._scendsTF.size = 50;
+        this._scendsTF.text = this._scends + "秒";
+        this.addChild(this._scendsTF);
+        //游戏计时器
+        this._gameTimer = new egret.Timer(1000, this._scends);
+        this._gameTimer.addEventListener(egret.TimerEvent.TIMER, this.gameTimerFunc, this);
+        this._gameTimer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, this.gameTimerCompleteFunc, this);
+        this._gameTimer.start();
     };
     //添加触摸事件
     Game.prototype.addTouchEvent = function () {
@@ -172,43 +197,39 @@ var Game = (function (_super) {
             var x = this._touchX < this._touchPersonX ? 3 : -3;
             this._person.x += x;
             this._background.x += x * 1.5;
-            this._person.y += 4;
+            this._person.y += 7;
         }
         this._person.y += 1;
-        if (this._person.x < 50)
-            this._person.x = 50;
-        if (this._person.y < 50)
-            this._person.y = 50;
-        if (this._person.x > (this._stageW - this._person.width - 50))
-            this._person.x = this._stageW - this._person.width - 50;
-        if (this._person.y > (this._stageH - this._person.height - 50)) {
-            this._person.y = this._stageH - this._person.height - 50;
+        if (this._person.x < 150)
+            this._person.x = 150;
+        if (this._person.y < 150)
+            this._person.y = 150;
+        if (this._person.x > (this._stageW - this._person.width - 150))
+            this._person.x = this._stageW - this._person.width - 150;
+        if (this._person.y > (this._stageH - this._person.height)) {
+            this._person.y = this._stageH - this._person.height;
             this._isFall = false;
         }
-        this._background.y -= 4;
+        // this._background.y -= 4;
         if (this._background.x > 0)
             this._background.x = 0;
         if (this._background.x < -2 * this._stageW)
             this._background.x = -2 * this._stageW;
-        if (this._background.y > 0)
-            this._background.y = 0;
-        if (this._background.y < -2 * this._stageH)
-            this._background.y = -2 * this._stageH;
+        // if(this._background.y > 0) this._background.y = 0;
+        // if(this._background.y < -2*this._stageH) this._background.y = -2*this._stageH;
         //添加碰撞检测
         this.checkHit();
     };
     //背景左右移动方向,与对象相反
     Game.prototype.moveBackground = function (isRight, isUp) {
         this._background.x += isRight ? 5 : -5;
-        this._background.y += isUp ? 6 : -6;
+        // this._background.y += isUp ? 6 : -6;
         if (this._background.x > 0)
             this._background.x = 0;
         if (this._background.x < -2 * this._stageW)
             this._background.x = -2 * this._stageW;
-        if (this._background.y > 0)
-            this._background.y = 0;
-        if (this._background.y < -2 * this._stageH)
-            this._background.y = -2 * this._stageH;
+        // if(this._background.y > 0) this._background.y = 0;
+        // if(this._background.y < -2*this._stageH) this._background.y = -2*this._stageH;
     };
     //碰撞检测
     Game.prototype.checkHit = function () {
@@ -221,27 +242,54 @@ var Game = (function (_super) {
         }
     };
     Game.prototype.hitAction = function (index) {
-        console.log(this._characterTFArray[index].text);
         this._currentTF.text += this._characterTFArray[index].text;
         this._background.removeChild(this._characterTFArray[index]);
-        //清空
+        this._characterTFArray.splice(index, 1);
+        //清空	
         if (this._currentTF.text.length > 4) {
             var character = this._currentTF.text.split(""); //将字母字符串转为数组
             //把清空掉的文字重新添加
-            for (var index = 0; index < this._characterTFArray.length; index++) {
+            for (var index = 0; index < character.length; index++) {
                 var _characterTF = new egret.TextField();
                 _characterTF.x = Math.random() * 3 * this._stageW;
                 _characterTF.y = Math.random() * 3 * this._stageH;
                 _characterTF.width = 80;
                 _characterTF.height = 80;
                 _characterTF.text = this._characterArray[index];
+                _characterTF.textColor = 0x000000;
                 _characterTF.size = 35;
                 _characterTF.textAlign = egret.HorizontalAlign.CENTER;
                 _characterTF.verticalAlign = egret.VerticalAlign.MIDDLE;
                 this._background.addChild(_characterTF);
+                this._characterTFArray.push(_characterTF);
             }
             this._currentTF.text = "";
         }
+    };
+    //每秒计时
+    Game.prototype.gameTimerFunc = function () {
+        this._scends--;
+        this._scendsTF.text = this._scends + "秒";
+        //剩5秒时播放倒计时音乐
+        if (this._scends == 5) {
+            var sound_1 = new egret.Sound();
+            sound_1.addEventListener(egret.Event.COMPLETE, function () {
+                this._countdownChannel = sound_1.play(0, 0);
+            }, this);
+            sound_1.load("resource/sound/countdown.mp3");
+        }
+    };
+    //游戏结束
+    Game.prototype.gameTimerCompleteFunc = function () {
+        this.removeTouchEvent();
+        //请求游戏结束接口
+        // this.gameOver();
+        if (this._countdownChannel)
+            this._countdownChannel.stop();
+        if (this._backgroundChannel)
+            this._backgroundChannel.stop();
+        if (this._gameTimer)
+            this._gameTimer.stop();
     };
     return Game;
 }(egret.DisplayObjectContainer));
