@@ -118,9 +118,9 @@ class Main extends egret.DisplayObjectContainer {
      */
     private createGameScene() {
 
-        this.addChild(new Home());
+        // this.addChild(new Home());
                 
-        // this.addChild(new Game());
+        this.addChild(new Game());
 
 
         //根据name关键字，异步获取一个json配置文件，name属性请参考resources/resource.json配置文件的内容。

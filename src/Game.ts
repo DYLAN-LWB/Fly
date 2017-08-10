@@ -16,6 +16,9 @@ class Game extends egret.DisplayObjectContainer {
 	private _characterArray = [];	//成语拆分成单个文字
 	private _characterTFArray = [];	//textField数组
 
+	private _remindTFArray = [];	//成语提词器
+	private _currentTF;	//当前迟到的成语
+
 	private createGameScene() {
 
 		//常量设置
@@ -44,6 +47,7 @@ class Game extends egret.DisplayObjectContainer {
 		this._guide.alpha = 0;
 		this.addChild(this._guide);
 
+		//背景
 		this._background = new egret.Sprite;
 		this._background.x = -this._stageW;
 		this._background.y = -this._stageH;
@@ -51,13 +55,14 @@ class Game extends egret.DisplayObjectContainer {
 		this._background.height = 3*this._stageH;
         this.addChild(this._background);
 
-		
+		//设置数组		
 		let _idiomArray = ["金蝉脱壳","百里挑一","背水一战","天上人间","不吐不快","海阔天空","情非得已","天下无双","偷天换日","八仙过海"];
 		let characterString = _idiomArray.join().replace(/,/g,""); 	//将单词数组转为字符串,并且去掉所有逗号
 		let character = characterString.split("");	//将字母字符串转为数组
 		Array.prototype.push.apply(this._characterArray, character); 	//追加到字母数组
 		Array.prototype.push.apply(this._allIdiomArray, _idiomArray); 	//将请求到的单词添加到大数组
 
+		//添加随机文字
 		for(var index = 0; index < this._characterArray.length; index++) {
 			let _characterTF  = new egret.TextField();
 			_characterTF.x = Math.random()*3*this._stageW;
@@ -75,8 +80,40 @@ class Game extends egret.DisplayObjectContainer {
 
 		//自由落体
 		this._person.addEventListener(egret.Event.ENTER_FRAME, this.freeFall, this);
-	}
 
+		//提示成语
+		for(var index = 0; index < this._allIdiomArray.length; index++) {
+			let _remindTF = new egret.TextField;
+			_remindTF.x = 20;
+			_remindTF.y = 400 + 25*index;
+			_remindTF.width = 200;
+			_remindTF.height = 25;
+			_remindTF.textColor = 0xff6600;
+			_remindTF.verticalAlign = egret.VerticalAlign.MIDDLE;
+			_remindTF.size = 20;
+			_remindTF.text = this._allIdiomArray[index];
+			_remindTF.fontFamily = "Microsoft YaHei";
+			this.addChild(_remindTF);
+
+			this._remindTFArray.push(_remindTF);
+		}
+
+		//已经吃的
+		this._currentTF  = new egret.TextField;
+		this._currentTF.x = 0;
+		this._currentTF.y = 20;
+		this._currentTF.width = this._stageW;
+		this._currentTF.height = 50;
+		this._currentTF.textColor = 0xff6600;
+		this._currentTF.verticalAlign = egret.VerticalAlign.MIDDLE;
+		this._currentTF.textAlign = egret.HorizontalAlign.CENTER;
+		this._currentTF.size = 35;
+		this._currentTF.text = this._allIdiomArray[index];
+		this._currentTF.fontFamily = "Microsoft YaHei";
+		this.addChild(this._currentTF);
+
+		
+	}
 
 	//添加触摸事件
 	private addTouchEvent() {
@@ -228,8 +265,34 @@ class Game extends egret.DisplayObjectContainer {
 	private hitAction(index:number) {
 		console.log(this._characterTFArray[index].text);
 
+		this._currentTF.text += this._characterTFArray[index].text; 
 		this._background.removeChild(this._characterTFArray[index]);
 
+
+		//清空
+		if(this._currentTF.text.length > 4) {
+
+			let character = this._currentTF.text.split("");	//将字母字符串转为数组
+
+			//把清空掉的文字重新添加
+			for(var index = 0; index < this._characterTFArray.length; index++) {
+				let _characterTF  = new egret.TextField();
+				_characterTF.x = Math.random()*3*this._stageW;
+				_characterTF.y = Math.random()*3*this._stageH;
+				_characterTF.width = 80;
+				_characterTF.height = 80;
+				_characterTF.text = this._characterArray[index];
+				_characterTF.size = 35;
+				_characterTF.textAlign = egret.HorizontalAlign.CENTER;
+				_characterTF.verticalAlign = egret.VerticalAlign.MIDDLE;
+				this._background.addChild(_characterTF);
+
+			}
+
+
+			this._currentTF.text = "";
+
+		}
 
 	}
 
