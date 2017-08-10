@@ -28,25 +28,26 @@ class Alert extends egret.Sprite {
 
     public initView() {
         var bg;
-        if(this.type == 3){
-            bg = new Bitmap("black2_png");
-        } else {
+        // if(this.type == 3){
+        //     bg = new Bitmap("black2_png");
+        // } else {
             bg = new Bitmap("black_png");
-        }
+        // }
         bg.height = this.screenHeight;
         bg.width = this.screenwith;
-        if(this.type == 2){
-            bg.x = -250;
-		    bg.y = 100;
-            bg.height = this.screenwith;
-            bg.width = this.screenHeight;
-        }
-        if(this.type == 3){
-            bg.height = this.screenwith;
-            bg.width = this.screenHeight;
-        }
+        bg.y = 0;
+        
+        // if(this.type == 2){
+        //     bg.x = -250;
+		//     bg.y = 100;
+        //     bg.height = this.screenwith;
+        //     bg.width = this.screenHeight;
+        // }
+        // if(this.type == 3){
+        //     bg.height = this.screenwith;
+        //     bg.width = this.screenHeight;
+        // }
         this.addChild(bg);
-
 
         
         switch (this.type) {

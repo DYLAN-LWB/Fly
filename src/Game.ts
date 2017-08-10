@@ -4,35 +4,59 @@ class Game extends egret.DisplayObjectContainer {
         this.addEventListener(egret.Event.ADDED_TO_STAGE, this.createGameScene, this);
 	}
 
+	//public
+    private _info = new Info(); //公用信息表
+	private _linnum: number;	//剩余挑战次数
+	private _rands: string;		//随机字符串,提交分数时加	
+	private _tid: string;
+	private _normalAlert;
+	private _score;						//分数
+	private _scoreTF: egret.TextField;		//分数文字
+
 	private _stageW;	//舞台宽度
 	private _stageH;	//舞台高度
-	private _person = new Bitmap("person_png");	//对象
-	private _isFall = false;	//判断自由落体时是否需要改变x
-	private _guide;		//触摸点提示箭头
 
-	private _background; 	//游戏移动背景
-
-	private _allIdiomArray = [];	//所有成语数组
-	private _characterArray = [];	//成语拆分成单个文字
-	private _characterTFArray = [];	//textField数组
-
-	private _remindTFArray = [];	//成语提词器
-	private _currentTF;	//当前迟到的成语
-
-	private _scends = 180;					//游戏默认180秒
+	private _scends;					//游戏默认180秒
 	private _scendsTF: egret.TextField;		//倒计时文字
 	private _gameTimer: egret.Timer;			//游戏倒计时计时器
 	private _countdownChannel: egret.SoundChannel;	//倒计时结束的声音
 	private _backgroundChannel: egret.SoundChannel;	//游戏背景音乐
+
+	private _background; 	//游戏背景
+
+	//this game
+	private _person = new Bitmap("person_png");	//对象
+	private _isFall = false;	//判断自由落体时是否需要改变x
+	private _guide;		//触摸点提示箭头
+
+	private _allIdiomArray = [];	//所有成语数组
+	private _characterArray = [];	//成语拆分成单个文字
+	private _characterTFArray = [];	//textField数组
+	private _remindTFArray = [];	//成语提词器
+	private _currentTF;	//当前迟到的成语
+
 
 	private createGameScene() {
 
 		//常量设置
 		this._stageW = this.stage.stageWidth;
 		this._stageH = this.stage.stageHeight;
+		this._scends = 50;
+        this._score = 0;
+		this._isFall  = true;
 
-		this.setupViews();
-		this.addTouchEvent();
+		this._info._vuid = localStorage.getItem("vuid").replace(/"/g,"");
+		this._info._key = localStorage.getItem("key").replace(/"/g,"");
+		this._info._isfrom = localStorage.getItem("isfrom").replace(/"/g,"");
+		this._info._timenum = localStorage.getItem("timenum").replace(/"/g,"");
+		this._info._activitynum = localStorage.getItem("activitynum").replace(/"/g,"");
+
+		//test
+		// this.setupViews();
+		// this.addTouchEvent();
+
+		//减游戏次数
+		this.minusGameCount();
 	}
 
 	private setupViews() {
@@ -68,18 +92,12 @@ class Game extends egret.DisplayObjectContainer {
 		this._background.height = this._stageH;
         this.addChild(this._background);
 
-		//设置数组		
-		let _idiomArray = ["金蝉脱壳","百里挑一","背水一战","天上人间","不吐不快","海阔天空","情非得已","天下无双","偷天换日","八仙过海"];
-		let characterString = _idiomArray.join().replace(/,/g,""); 	//将单词数组转为字符串,并且去掉所有逗号
-		let character = characterString.split("");	//将字母字符串转为数组
-		Array.prototype.push.apply(this._characterArray, character); 	//追加到字母数组
-		Array.prototype.push.apply(this._allIdiomArray, _idiomArray); 	//将请求到的单词添加到大数组
 
 		//添加随机文字
 		for(var index = 0; index < this._characterArray.length; index++) {
 			let _characterTF  = new egret.TextField();
-			_characterTF.x = Math.random()*2.6*this._stageW + 0.2*this._stageW ;
-			_characterTF.y = Math.random()*this._stageH;
+			_characterTF.x = Math.random()*(3*this._stageW -600) + 300;
+			_characterTF.y = Math.random()*(this._stageH - 600) + 300;
 			_characterTF.width = 80;
 			_characterTF.height = 80;
 			_characterTF.text = this._characterArray[index];
@@ -144,6 +162,19 @@ class Game extends egret.DisplayObjectContainer {
         this._gameTimer.addEventListener(egret.TimerEvent.TIMER, this.gameTimerFunc, this);
         this._gameTimer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, this.gameTimerCompleteFunc, this);
         this._gameTimer.start();
+
+		//分数提示
+		this._scoreTF = new egret.TextField();
+		this._scoreTF.x = 33;
+		this._scoreTF.y = 20;
+		this._scoreTF.width = 333;
+		this._scoreTF.height = 55;
+        this._scoreTF.textColor = 0x20544a;
+		this._scoreTF.textAlign =  egret.HorizontalAlign.CENTER;
+        this._scoreTF.size = 30;
+        this._scoreTF.text = this._score + "分";
+		this._scoreTF.fontFamily = "Microsoft YaHei"
+        this.addChild(this._scoreTF);
 	}
 
 	//添加触摸事件
@@ -232,8 +263,6 @@ class Game extends egret.DisplayObjectContainer {
 		//改变对象位置时同时移动背景
 		this.moveBackground(x > 0 ? false : true, y > 0 ? false : true);
 
-		//添加碰撞检测
-		this.checkHit();
 	}
 
 	//自由落体,改变对象和背景
@@ -242,7 +271,6 @@ class Game extends egret.DisplayObjectContainer {
 		if(this._isFall == true) {
 			var x = this._touchX < this._touchPersonX ? 3 : -3;
 			this._person.x += x;
-			this._background.x += x*1.5;
 			this._person.y += 7;
 		} 
 		
@@ -251,17 +279,10 @@ class Game extends egret.DisplayObjectContainer {
 		if(this._person.x < 150)  this._person.x = 150;
 		if(this._person.y < 150)  this._person.y = 150;
 		if(this._person.x > (this._stageW-this._person.width-150)) this._person.x = this._stageW-this._person.width-150;
-		if(this._person.y > (this._stageH-this._person.height)) {
-			this._person.y = this._stageH-this._person.height;
+		if(this._person.y > (this._stageH-this._person.height-150)) {
+			this._person.y = this._stageH-this._person.height-150;
 			this._isFall = false;
 		}
-
-		// this._background.y -= 4;
-
-		if(this._background.x > 0) this._background.x = 0;
-		if(this._background.x < -2*this._stageW) this._background.x = -2*this._stageW;
-		// if(this._background.y > 0) this._background.y = 0;
-		// if(this._background.y < -2*this._stageH) this._background.y = -2*this._stageH;
 		
 		//添加碰撞检测
 		this.checkHit();
@@ -271,12 +292,9 @@ class Game extends egret.DisplayObjectContainer {
 	private moveBackground(isRight:boolean ,isUp:boolean) {
 			
 		this._background.x += isRight ? 5 : -5;
-		// this._background.y += isUp ? 6 : -6;
 
 		if(this._background.x > 0) this._background.x = 0;
 		if(this._background.x < -2*this._stageW) this._background.x = -2*this._stageW;
-		// if(this._background.y > 0) this._background.y = 0;
-		// if(this._background.y < -2*this._stageH) this._background.y = -2*this._stageH;
 	}
 
 	//碰撞检测
@@ -294,6 +312,11 @@ class Game extends egret.DisplayObjectContainer {
 	}
 
 	private hitAction(index:number) {
+		//test
+		this.plusScore(1);
+		this._score += 1;
+		this._scoreTF.text = this._score + "分";
+
 
 		this._currentTF.text += this._characterTFArray[index].text; 
 		this._background.removeChild(this._characterTFArray[index]);
@@ -307,8 +330,8 @@ class Game extends egret.DisplayObjectContainer {
 			//把清空掉的文字重新添加
 			for(var index = 0; index < character.length; index++) {
 				let _characterTF  = new egret.TextField();
-				_characterTF.x = Math.random()*3*this._stageW;
-				_characterTF.y = Math.random()*3*this._stageH;
+				_characterTF.x = Math.random()*(3*this._stageW -600) + 300;
+				_characterTF.y = Math.random()*(this._stageH - 600) + 300;
 				_characterTF.width = 80;
 				_characterTF.height = 80;
 				_characterTF.text = this._characterArray[index];
@@ -319,10 +342,7 @@ class Game extends egret.DisplayObjectContainer {
 				this._background.addChild(_characterTF);
 
 				this._characterTFArray.push(_characterTF);
-
-
 			}
-
 			this._currentTF.text = "";
 		}
 	}
@@ -348,11 +368,197 @@ class Game extends egret.DisplayObjectContainer {
 		this.removeTouchEvent();
 
 		//请求游戏结束接口
-		// this.gameOver();
+		this.gameOver();
 
         if (this._countdownChannel) this._countdownChannel.stop();
 		if (this._backgroundChannel) this._backgroundChannel.stop();
 		if (this._gameTimer) this._gameTimer.stop();
+	}
+
+
+	//接口-减游戏次数
+	private minusGameCount() {
+		let params = "?vuid=" + this._info._vuid +
+					 "&key=" + this._info._key +
+					 "&timenum=" + this._info._timenum +
+					 "&activitynum=" + this._info._activitynum + 
+					 "&isfrom=" + this._info._isfrom;
+		// alert("减游戏次数接口 - "+this._info._getWord + params);
+
+        let request = new egret.HttpRequest();
+        request.responseType = egret.HttpResponseType.TEXT;
+        request.open(this._info._downnum + params, egret.HttpMethod.GET);
+		console.log(this._info._downnum + params);
+        request.send();
+        request.addEventListener(egret.Event.COMPLETE, function() {
+			let result = JSON.parse(request.response);
+            console.log(result);
+            if (result["code"] == 0) {
+				this._linnum = parseInt(result["data"]["linnum"]);
+				this._rands = result["data"]["rands"].toString();
+				this._tid = result["data"]["tid"].toString();
+
+				//请求单词
+				this.getWords(1);
+
+			} else if(result["code"] == 2){
+
+				this._overAlert = new Alert(Alert.GamePageShare, "", "", "",0,this.stage.stageHeight,this.stage.stageWidth);
+				this._overAlert.addEventListener(AlertEvent.Share, this.shareButtonClick, this);
+				this._overAlert.addEventListener(AlertEvent.Cancle, function() {
+        			window.location.reload();
+				}, this);
+				this.addChild(this._overAlert);
+			}
+		}, this);
+		request.addEventListener(egret.IOErrorEvent.IO_ERROR, function() {
+            alert("post error : " + event);
+        }, this);
+	}
+
+
+//接口-请求单词, 只在初次请求时添加UI
+	private getWords(type: number) {
+
+		let params = "?vuid=" + this._info._vuid + 
+					 "&key=" + this._info._key +
+					 "&rands=" + this._rands + 
+					 "&isfrom=" + this._info._isfrom;
+		// alert("请求单词接口 - "+this._info._getWord + params);
+		let request = new egret.HttpRequest();
+        request.responseType = egret.HttpResponseType.TEXT;
+		console.log(this._info._getWord + params);
+        request.open(this._info._getWord + params, egret.HttpMethod.GET);
+        request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        request.send();
+		request.addEventListener(egret.Event.COMPLETE, function() {
+			let result = JSON.parse(request.response);
+			console.log(result);
+
+	        if (result["code"] == 0) {
+			
+				//设置数组		
+				let _idiomArray = ["金蝉脱壳","百里挑一","背水一战"];
+				let characterString = _idiomArray.join().replace(/,/g,""); 	//将单词数组转为字符串,并且去掉所有逗号
+				let character = characterString.split("");	//将字母字符串转为数组
+				Array.prototype.push.apply(this._characterArray, character); 	//追加到字母数组
+				Array.prototype.push.apply(this._allIdiomArray, _idiomArray); 	//将请求到的单词添加到大数组
+
+				//接口请求成功添加UI
+				if (type == 1) {
+					this.setupViews();
+					this.addTouchEvent();
+				} 
+
+			} else {
+				alert(result["msg"]);
+			}
+		}, this);
+		request.addEventListener(egret.IOErrorEvent.IO_ERROR, function() {
+            alert("post error : " + event);
+        }, this);
+	}
+	
+	//接口-增加分数
+	private plusScore(score: number) {
+		let params = "?vuid=" + this._info._vuid + 
+					 "&rands=" + this._rands + 
+					 "&tid=" + this._tid + 
+					 "&md5=" + score + 
+					 "&timenum=" + this._info._timenum + 
+					 "&activitynum=" + this._info._activitynum + 
+					 "&isfrom=" + this._info._isfrom;
+		let request = new egret.HttpRequest();
+        request.responseType = egret.HttpResponseType.TEXT;
+		console.log(this._info._typosTempjump + params);
+        request.open(this._info._typosTempjump+params, egret.HttpMethod.GET);
+        request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        request.send();
+		request.addEventListener(egret.Event.COMPLETE, function() {
+			let result = JSON.parse(request.response);
+			// alert(this._info._typosTempjump + "---"+ params + "---"+result["code"] + "---"+result["msg"]);
+			console.log(result);
+		}, this);
+		request.addEventListener(egret.IOErrorEvent.IO_ERROR, function() {
+            alert("post error : " + event);
+        }, this);
+	}
+
+	//接口-游戏结束
+    private gameOver() {
+        var params = "?score=" + this._score + 
+					 "&vuid=" + this._info._vuid +
+					 "&key=" + this._info._key + 
+					 "&rands=" + this._rands + 
+					 "&timenum=" + this._info._timenum + 
+					 "&activitynum=" + this._info._activitynum + 
+					 "&isfrom=" + this._info._isfrom;
+		// alert("游戏结束接口 - "+this._info._gameover + params);
+
+        var request = new egret.HttpRequest();
+        request.responseType = egret.HttpResponseType.TEXT;
+        console.log(this._info._gameover + params);
+        request.open(this._info._gameover + params, egret.HttpMethod.GET);
+        request.send();
+		request.addEventListener(egret.Event.COMPLETE, function() {
+			let result = JSON.parse(request.response);
+            console.log(result);
+			let highScore = result["data"]["score"];
+			if(this._score > parseInt(highScore)){
+				highScore = this._score;
+			}
+			this._normalAlert = new Alert(Alert.GamePageScore, this._score.toString(), highScore,result["data"]["order"], result["data"]["text"],this._stageW,this._stageH);
+			this._normalAlert.addEventListener(AlertEvent.Ranking, this.checkRanking, this);
+			this._normalAlert.addEventListener(AlertEvent.Restart, this.restartGame, this);
+			this.addChild(this._normalAlert);
+
+		}, this);
+		request.addEventListener(egret.IOErrorEvent.IO_ERROR, function() {
+            alert("post error : " + event);
+        }, this);
+    }
+
+	//游戏结束alert-查看排名
+	private checkRanking() {
+		console.log("game 查看排名");
+
+		if(this._normalAlert && this._normalAlert.parent) {
+			this._normalAlert.parent.removeChild(this._normalAlert);
+		} 
+
+		// alert("查看排名 - "+this._info._rankUrl + this._info._timenum + "/activitynum/" + this._info._activitynum + "/vuid/" + this._info._vuid + "/key/" + this._info._key + "/isfrom/" + this._info._isfrom);
+        window.location.href = this._info._rankUrl + this._info._timenum + "/activitynum/" + this._info._activitynum + "/vuid/" + this._info._vuid + "/key/" + this._info._key + "/isfrom/" + this._info._isfrom;
+    }
+
+	//游戏结束alert-重玩
+    private restartGame() {
+
+		//移动当前场景
+        this.removeChildren();
+
+		//重玩时清空数组
+		this._allIdiomArray.splice(0, this._allIdiomArray.length);
+		this._characterArray.splice(0, this._characterArray.length);
+		this._characterTFArray.splice(0, this._characterTFArray.length);
+		this._remindTFArray.splice(0, this._remindTFArray.length);
+
+		//重新添加
+
+		this.createGameScene();
+    }
+
+	private shareButtonClick() {
+        //分享引导图
+        let _shareGuide = new Bitmap("shareGui2_png");
+        _shareGuide.touchEnabled = true;
+        _shareGuide.x =  0;
+        _shareGuide.y =  0 ;
+        _shareGuide.width = this.stage.stageWidth ;
+        _shareGuide.height = this.stage.stageHeight ;
+        _shareGuide.addEventListener(egret.TouchEvent.TOUCH_TAP, function() {
+            this.removeChild(_shareGuide);
+        }, this);
+		this.addChild(_shareGuide);
 	}
 
 
