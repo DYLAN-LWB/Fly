@@ -137,9 +137,9 @@ var Game = (function (_super) {
     Game.prototype.freeFall = function () {
         //手指离开屏幕时x值改变
         if (this._isFall == true) {
-            var x = this._touchX < this._touchPersonX ? 2 : -2;
+            var x = this._touchX < this._touchPersonX ? 3 : -3;
             this._person.x += x;
-            this._background.x += x * 2;
+            this._background.x += x * 1.5;
             this._person.y += 4;
         }
         this._person.y += 1;
@@ -167,7 +167,7 @@ var Game = (function (_super) {
     };
     //背景左右移动方向,与对象相反
     Game.prototype.moveBackground = function (isRight, isUp) {
-        this._background.x += isRight ? 4 : -4;
+        this._background.x += isRight ? 5 : -5;
         this._background.y += isUp ? 6 : -6;
         if (this._background.x > 0)
             this._background.x = 0;
