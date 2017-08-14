@@ -38,7 +38,7 @@ var Game = (function (_super) {
         this._info._timenum = localStorage.getItem("timenum").replace(/"/g, "");
         this._info._activitynum = localStorage.getItem("activitynum").replace(/"/g, "");
         //test
-        var _idiomArray = ["倍速课堂", "万向思维", "在线教育", "哈哈哈哈", "1哈哈哈", "2哈哈哈", "3哈哈哈"];
+        var _idiomArray = ["1111", "2222", "3333", "4444", "5555", "6666", "7777"];
         Array.prototype.push.apply(this._allIdiomArray, _idiomArray); //将请求到的单词添加到大数组
         this._currentIdiomArray.push(this._allIdiomArray[0]); //将前两个添加到数组
         this._currentIdiomArray.push(this._allIdiomArray[1]);
@@ -314,81 +314,102 @@ var Game = (function (_super) {
         this._score += 1;
         this._scoreTF.text = this._score + "分";
         this._currentTF.text += this._characterTFArray[index].text;
+        //删除该文字的相关数据
         this._background.removeChild(this._characterTFArray[index]); //移除碰撞文字UI
         this._characterTFArray.splice(index, 1); //移除碰撞文字UI-数组
         this._characterArray.splice(index, 1); //移除碰撞文字-数组
         //判断是否吃对了
         if (this._currentTF.text.length == 4) {
-            //查看是否在当前成语数组
-            for (var index_3 = 0; index_3 < this._currentIdiomArray.length; index_3++) {
-                if (this._currentTF.text == this._currentIdiomArray[index_3]) {
-                    this._currentIdiomArray.splice(index_3, 1); //移除该成语数据
-                    this._currentIdiomArray.push(this._allIdiomArray[0]); //添加新数据
-                    //遍历对应的提示
-                    //移除当前吃到的提示成语, 新增提示
-                    for (var number = 0; number < this._remindTFArray.length; number++) {
-                        console.log(this._currentTF.text);
-                        console.log(this._remindTFArray[index_3].text);
-                        if (this._currentTF.text === this._remindTFArray[index_3].text) {
-                            var currentTextField = this._remindTFArray[number];
-                            this._remindTFArray.splice(number, 1);
-                            this.removeChild(this._remindTFArray[number]);
-                            var _remindTF = new egret.TextField;
-                            _remindTF.x = 20;
-                            _remindTF.y = currentTextField.y;
-                            _remindTF.width = 200;
-                            _remindTF.height = 25;
-                            _remindTF.textColor = 0xff6600;
-                            _remindTF.verticalAlign = egret.VerticalAlign.MIDDLE;
-                            _remindTF.size = 20;
-                            _remindTF.text = this._allIdiomArray[0];
-                            _remindTF.fontFamily = "Microsoft YaHei";
-                            this.addChild(_remindTF);
-                            this._remindTFArray.push(_remindTF);
-                        }
-                    }
+            this.addNewCharacter();
+        }
+    };
+    //吃对则删除 新增
+    Game.prototype.addNewCharacter = function () {
+        var newCharacter = [];
+        var currentString = this._currentTF.text;
+        var newRemind = "";
+        this._currentTF.text = "";
+        var _isRight = false;
+        //查看是否在当前成语数组
+        for (var index = 0; index < this._currentIdiomArray.length; index++) {
+            console.log(currentString);
+            console.log(this._currentIdiomArray[index]);
+            var string = this._currentIdiomArray[index];
+            if (currentString == string) {
+                console.log("吃对了");
+                _isRight = true;
+                this._currentIdiomArray.splice(index, 1); //移除该成语数据
+                this._currentIdiomArray.push(this._allIdiomArray[0]); //添加新数据
+                //吃对成语增加新的, 吃错增加刚才吃过的
+                var characterString = this._allIdiomArray[0].replace(/,/g, ""); //将单词数组转为字符串,并且去掉所有逗号
+                newCharacter = characterString.split(""); //将字母字符串转为数组
+                Array.prototype.push.apply(this._characterArray, newCharacter); //追加到字母数组
+                newRemind = this._allIdiomArray[0]; //新增加的提示成语
+                this._allIdiomArray.splice(0, 1); //添加第一个之后删除
+            }
+            else {
+                console.log("吃错了");
+                _isRight = false;
+                newCharacter = currentString.split(""); //将字母字符串转为数组
+                Array.prototype.push.apply(this._characterArray, newCharacter); //追加到字母数组
+            }
+        }
+        //吃对吃错都得添加新的文字
+        for (var num = 0; num < newCharacter.length; num++) {
+            var _characterTF = new egret.TextField();
+            _characterTF.x = Math.random() * (3 * this._stageW - 800) + 300; //随机x 300 ~ 3W-600	
+            _characterTF.y = Math.random() * (this._stageH - 600) + 300; //随机y 300 ~ H-600	
+            _characterTF.width = 80;
+            _characterTF.height = 80;
+            _characterTF.text = newCharacter[num];
+            _characterTF.size = 35;
+            _characterTF.textColor = 0x000000;
+            _characterTF.textAlign = egret.HorizontalAlign.CENTER;
+            _characterTF.verticalAlign = egret.VerticalAlign.MIDDLE;
+            _characterTF.background = true;
+            _characterTF.backgroundColor = 0xff0000;
+            this._background.addChild(_characterTF);
+            //添加到数组
+            this._characterTFArray.push(_characterTF);
+            //和所有文字tf比较位置
+            for (var index = 0; index < this._characterTFArray.length; index++) {
+                var characterTF = this._characterTFArray[index];
+                var spaceX = Math.abs(characterTF.x - _characterTF.x);
+                var spaceY = Math.abs(characterTF.y - _characterTF.y);
+                if (spaceX < 100 && spaceY < 100) {
+                    _characterTF.x += 100;
                 }
             }
-            this._currentTF.text = "";
-            var characterString = this._allIdiomArray[0].replace(/,/g, ""); //将单词数组转为字符串,并且去掉所有逗号
-            var newCharacter = characterString.split(""); //将字母字符串转为数组
-            Array.prototype.push.apply(this._characterArray, newCharacter); //追加到字母数组
-            //添加第一个之后删除
-            this._allIdiomArray.splice(0, 1);
-            //添加新增加的文字
-            for (var index = 0; index < newCharacter.length; index++) {
-                var _characterTF = new egret.TextField();
-                _characterTF.x = Math.random() * (3 * this._stageW - 800) + 300; //随机x 300 ~ 3W-600	
-                _characterTF.y = Math.random() * (this._stageH - 600) + 300; //随机y 300 ~ H-600	
-                _characterTF.width = 80;
-                _characterTF.height = 80;
-                _characterTF.text = newCharacter[index];
-                _characterTF.size = 35;
-                _characterTF.textColor = 0x000000;
-                _characterTF.textAlign = egret.HorizontalAlign.CENTER;
-                _characterTF.verticalAlign = egret.VerticalAlign.MIDDLE;
-                _characterTF.background = true;
-                _characterTF.backgroundColor = 0xff0000;
-                this._background.addChild(_characterTF);
-                //添加到数组
-                this._characterTFArray.push(_characterTF);
-                //和所有文字tf比较位置
-                for (var index_4 = 0; index_4 < this._characterTFArray.length; index_4++) {
-                    var characterTF = this._characterTFArray[index_4];
-                    var spaceX = Math.abs(characterTF.x - _characterTF.x);
-                    var spaceY = Math.abs(characterTF.y - _characterTF.y);
-                    if (spaceX < 100 && spaceY < 100) {
-                        _characterTF.x += 100;
-                    }
+            //和障碍物xy值比较,避免重叠
+            for (var index = 0; index < this._barrierArray.length; index++) {
+                var barrier = this._barrierArray[index];
+                var spaceX = Math.abs(barrier.x - _characterTF.x);
+                var spaceY = Math.abs(barrier.y - _characterTF.y);
+                if (spaceX < 100 && spaceY < 100) {
+                    _characterTF.x += 100;
                 }
-                //和障碍物xy值比较,避免重叠
-                for (var index_5 = 0; index_5 < this._barrierArray.length; index_5++) {
-                    var barrier = this._barrierArray[index_5];
-                    var spaceX = Math.abs(barrier.x - _characterTF.x);
-                    var spaceY = Math.abs(barrier.y - _characterTF.y);
-                    if (spaceX < 100 && spaceY < 100) {
-                        _characterTF.x += 100;
-                    }
+            }
+        }
+        //遍历对应的提示, 移除当前吃到的提示成语, 新增提示  吃对才删
+        if (_isRight) {
+            for (var number = 0; number < this._remindTFArray.length; number++) {
+                var string = this._remindTFArray[number].text;
+                if (currentString == string) {
+                    var currentTextField = this._remindTFArray[number];
+                    this.removeChild(this._remindTFArray[number]);
+                    this._remindTFArray.splice(number, 1);
+                    var _remindTF = new egret.TextField;
+                    _remindTF.x = 20;
+                    _remindTF.y = currentTextField.y;
+                    _remindTF.width = 200;
+                    _remindTF.height = 25;
+                    _remindTF.textColor = 0xff6600;
+                    _remindTF.verticalAlign = egret.VerticalAlign.MIDDLE;
+                    _remindTF.size = 20;
+                    _remindTF.text = newRemind;
+                    _remindTF.fontFamily = "Microsoft YaHei";
+                    this.addChild(_remindTF);
+                    this._remindTFArray.push(_remindTF);
                 }
             }
         }
@@ -404,7 +425,7 @@ var Game = (function (_super) {
     };
     Game.prototype.hitBarrierAction = function (index) {
         if (this._isHitBarrier == false) {
-            alert("hitBarrierAction");
+            console.log("hitBarrierAction");
         }
         this._isHitBarrier = true;
     };
