@@ -57,20 +57,20 @@ class Home extends egret.DisplayObjectContainer {
         this._info._timenum = params["timenum"].replace(/"/g,"");
         this._info._activitynum = params["activitynum"].replace(/"/g,"");
 
-        //保存信息
-        localStorage.setItem("vuid", JSON.stringify(this._info._vuid));
-        localStorage.setItem("key", JSON.stringify(this._info._key));
-        localStorage.setItem("isfrom", JSON.stringify(this._info._isfrom));
-        localStorage.setItem("timenum", JSON.stringify(this._info._timenum));
-        localStorage.setItem("activitynum", JSON.stringify(this._info._activitynum));
-
-        //app在排行榜点击重玩 会重新加载首页, 没有id key
-        if(this._info._key.length < 8) {
+        
+        if(this._info._key.length < 8) { //app在排行榜点击重玩 会重新加载首页, 没有id key
             this._info._vuid = localStorage.getItem("vuid").replace(/"/g,"");
             this._info._key = localStorage.getItem("key").replace(/"/g,"");
 		    this._info._isfrom = localStorage.getItem("isfrom").replace(/"/g,"");
 		    this._info._timenum = localStorage.getItem("timenum").replace(/"/g,"");
 		    this._info._activitynum = localStorage.getItem("activitynum").replace(/"/g,"");
+        } else {
+            //保存信息
+            localStorage.setItem("vuid", JSON.stringify(this._info._vuid));
+            localStorage.setItem("key", JSON.stringify(this._info._key));
+            localStorage.setItem("isfrom", JSON.stringify(this._info._isfrom));
+            localStorage.setItem("timenum", JSON.stringify(this._info._timenum));
+            localStorage.setItem("activitynum", JSON.stringify(this._info._activitynum));
         }
 
         if (this._info._key == null) {

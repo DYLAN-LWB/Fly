@@ -36,7 +36,7 @@ class Alert extends egret.Sprite {
         bg.height = this.screenHeight;
         bg.width = this.screenwith;
         bg.y = 0;
-        
+
         // if(this.type == 2){
         //     bg.x = -250;
 		//     bg.y = 100;
@@ -172,15 +172,15 @@ class Alert extends egret.Sprite {
                 break;
             case 3:
                 var alertbggame = new Bitmap("gamebody_json.prompt_03");
-                alertbggame.x = 370+250;
-                alertbggame.y = 480 - 140;
+                alertbggame.x = 370;
+                alertbggame.y = 480;
                 alertbggame.anchorOffsetX = alertbggame.width / 2;
                 alertbggame.anchorOffsetY = alertbggame.height / 2;
                 this.addChild(alertbggame);
 
                 var decgame = new egret.TextField();
-                decgame.x = 370+250;
-                decgame.y = 460 - 140;
+                decgame.x = 370;
+                decgame.y = 460;
                 decgame.size = 30;
                 decgame.fontFamily = "Microsoft YaHei"
                 decgame.verticalAlign = egret.VerticalAlign.BOTTOM;
@@ -193,8 +193,8 @@ class Alert extends egret.Sprite {
                 this.addChild(decgame);
 
                 var canclebtgame = new Bitmap("gamebody_json.btn_03");
-                canclebtgame.x = 230+250;
-                canclebtgame.y = 610 - 140;
+                canclebtgame.x = 230;
+                canclebtgame.y = 610;
                 canclebtgame.anchorOffsetX = canclebtgame.width / 2;
                 canclebtgame.anchorOffsetY = canclebtgame.height / 2;
                 canclebtgame.touchEnabled = true;
@@ -202,8 +202,8 @@ class Alert extends egret.Sprite {
                 this.addChild(canclebtgame);
 
                 var sharebtgame = new Bitmap("gamebody_json.btn_05");
-                sharebtgame.x = 510+250;
-                sharebtgame.y = 610 - 140;
+                sharebtgame.x = 510;
+                sharebtgame.y = 610;
                 sharebtgame.anchorOffsetX = sharebtgame.width / 2;
                 sharebtgame.anchorOffsetY = sharebtgame.height / 2;
                 sharebtgame.touchEnabled = true;

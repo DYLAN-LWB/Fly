@@ -30,18 +30,21 @@ class Game extends egret.DisplayObjectContainer {
 	private _guide;		//触摸点提示箭头
 
 	private _allIdiomArray = [];	//所有成语数组
+	private _currentIdiomArray = [];
 	private _characterArray = [];	//成语拆分成单个文字
 	private _characterTFArray = [];	//textField数组
 	private _remindTFArray = [];	//成语提词器
-	private _currentTF;	//当前迟到的成语
+	private _barrierArray = [];
+	private _currentTF;	//当前吃到的成语
 
+	private _isHitBarrier = false;
 
 	private createGameScene() {
 
 		//常量设置
 		this._stageW = this.stage.stageWidth;
 		this._stageH = this.stage.stageHeight;
-		this._scends = 50;
+		this._scends = 60;
         this._score = 0;
 		this._isFall  = true;
 
@@ -52,11 +55,20 @@ class Game extends egret.DisplayObjectContainer {
 		this._info._activitynum = localStorage.getItem("activitynum").replace(/"/g,"");
 
 		//test
-		// this.setupViews();
-		// this.addTouchEvent();
+		let _idiomArray = ["倍速课堂","万向思维","在线教育","哈哈哈哈","1哈哈哈","2哈哈哈","3哈哈哈"];
+		Array.prototype.push.apply(this._allIdiomArray, _idiomArray); 	//将请求到的单词添加到大数组
+		this._currentIdiomArray.push(this._allIdiomArray[0]);	//将前两个添加到数组
+		this._currentIdiomArray.push(this._allIdiomArray[1]);
+		this._allIdiomArray.splice(0,2);	//添加完后删除
+		let characterString = this._currentIdiomArray.join().replace(/,/g,""); 	//将单词数组转为字符串,并且去掉所有逗号
+		let character = characterString.split("");	//将字母字符串转为数组
+		Array.prototype.push.apply(this._characterArray, character); 	//追加到字母数组
+		this.setupViews();
+		this.addTouchEvent();
 
+		//http://ceshi.beisu100.com/liweibin/Fly/index.html
 		//减游戏次数
-		this.minusGameCount();
+		// this.minusGameCount();
 	}
 
 	private setupViews() {
@@ -64,9 +76,23 @@ class Game extends egret.DisplayObjectContainer {
 		let sound = new egret.Sound();
 		sound.addEventListener(egret.Event.COMPLETE, function() {
 			this._backgroundChannel = sound.play(0,0);
-			this._backgroundChannel.volume = 0.7;
+			this._backgroundChannel.volume = 0.8;
 		}, this);
-		sound.load("resource/sound/bg.mp3");
+		// sound.load("resource/sound/bg.mp3");
+
+		//背景
+		this._background = new egret.Sprite;
+		this._background.x = -this._stageW;
+		this._background.y = 0;
+		this._background.width = 3*this._stageW;
+		this._background.height = this._stageH;
+        this.addChild(this._background);
+
+		//添加障碍物
+		this.addBarrier();
+
+		//添加文字相关
+		this.addCharacter();
 
 		//添加对象
 		this._person.x = 200;
@@ -84,37 +110,12 @@ class Game extends egret.DisplayObjectContainer {
 		this._guide.alpha = 0;
 		this.addChild(this._guide);
 
-		//背景
-		this._background = new egret.Sprite;
-		this._background.x = -this._stageW;
-		this._background.y = 0;
-		this._background.width = 3*this._stageW;
-		this._background.height = this._stageH;
-        this.addChild(this._background);
-
-
-		//添加随机文字
-		for(var index = 0; index < this._characterArray.length; index++) {
-			let _characterTF  = new egret.TextField();
-			_characterTF.x = Math.random()*(3*this._stageW -600) + 300;
-			_characterTF.y = Math.random()*(this._stageH - 600) + 300;
-			_characterTF.width = 80;
-			_characterTF.height = 80;
-			_characterTF.text = this._characterArray[index];
-			_characterTF.size = 35;
-			_characterTF.textColor = 0x000000;
-			_characterTF.textAlign = egret.HorizontalAlign.CENTER;
-			_characterTF.verticalAlign = egret.VerticalAlign.MIDDLE;
-			this._background.addChild(_characterTF);
-
-			this._characterTFArray.push(_characterTF);
-		}
-
 		//自由落体
 		this._person.addEventListener(egret.Event.ENTER_FRAME, this.freeFall, this);
 
-		//提示成语
-		for(var index = 0; index < this._allIdiomArray.length; index++) {
+
+		//提示当前的成语
+		for(var index = 0; index < this._currentIdiomArray.length; index++) {
 			let _remindTF = new egret.TextField;
 			_remindTF.x = 20;
 			_remindTF.y = 400 + 25*index;
@@ -123,14 +124,14 @@ class Game extends egret.DisplayObjectContainer {
 			_remindTF.textColor = 0xff6600;
 			_remindTF.verticalAlign = egret.VerticalAlign.MIDDLE;
 			_remindTF.size = 20;
-			_remindTF.text = this._allIdiomArray[index];
+			_remindTF.text = this._currentIdiomArray[index];
 			_remindTF.fontFamily = "Microsoft YaHei";
 			this.addChild(_remindTF);
 
 			this._remindTFArray.push(_remindTF);
 		}
 
-		//已经吃的
+		//已经吃的提示
 		this._currentTF  = new egret.TextField;
 		this._currentTF.x = 0;
 		this._currentTF.y = 20;
@@ -140,10 +141,22 @@ class Game extends egret.DisplayObjectContainer {
 		this._currentTF.verticalAlign = egret.VerticalAlign.MIDDLE;
 		this._currentTF.textAlign = egret.HorizontalAlign.CENTER;
 		this._currentTF.size = 35;
-		this._currentTF.text = this._allIdiomArray[index];
 		this._currentTF.fontFamily = "Microsoft YaHei";
 		this.addChild(this._currentTF);
 
+		//分数提示
+		this._scoreTF = new egret.TextField();
+		this._scoreTF.x = 33;
+		this._scoreTF.y = 20;
+		this._scoreTF.width = 333;
+		this._scoreTF.height = 55;
+        this._scoreTF.textColor = 0x20544a;
+		this._scoreTF.textAlign =  egret.HorizontalAlign.CENTER;
+        this._scoreTF.size = 30;
+        this._scoreTF.text = this._score + "分";
+		this._scoreTF.fontFamily = "Microsoft YaHei"
+        this.addChild(this._scoreTF);
+				
 		//倒计时提示
 		this._scendsTF = new egret.TextField();
 		this._scendsTF.x = this.stage.stageWidth*0.75;
@@ -162,19 +175,76 @@ class Game extends egret.DisplayObjectContainer {
         this._gameTimer.addEventListener(egret.TimerEvent.TIMER, this.gameTimerFunc, this);
         this._gameTimer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, this.gameTimerCompleteFunc, this);
         this._gameTimer.start();
+	}
 
-		//分数提示
-		this._scoreTF = new egret.TextField();
-		this._scoreTF.x = 33;
-		this._scoreTF.y = 20;
-		this._scoreTF.width = 333;
-		this._scoreTF.height = 55;
-        this._scoreTF.textColor = 0x20544a;
-		this._scoreTF.textAlign =  egret.HorizontalAlign.CENTER;
-        this._scoreTF.size = 30;
-        this._scoreTF.text = this._score + "分";
-		this._scoreTF.fontFamily = "Microsoft YaHei"
-        this.addChild(this._scoreTF);
+	//添加障碍物
+	private addBarrier() {
+		if(this._barrierArray.length > 0) {
+			for(var index = 0; index < 5; index++) {
+				if(this._barrierArray[index] && this._barrierArray[index].parent) {
+					this._barrierArray[index].parent.removeChild(this._barrierArray[index])
+				};	
+				this._barrierArray.splice(index, 1);
+			}			
+		}
+
+		let splice = 3*this._stageW/6;
+		for(var index = 0; index < 5; index++) {
+			let _barrier  = new Bitmap("zhadan_test_png");
+			_barrier.x = splice*index + 300;
+			_barrier.y = Math.random()*(this._stageH - 600) + 300;
+			_barrier.width = 80;
+			_barrier.height = 66;
+			this._background.addChild(_barrier);
+
+			this._barrierArray.push(_barrier);
+		}
+	}
+
+	//添加随机文字
+	private addCharacter() {
+
+		for(var index = 0; index < this._characterArray.length; index++) {
+			let _characterTF  = new egret.TextField();
+			_characterTF.x = Math.random()*(3*this._stageW - 800) + 300; //随机x 300 ~ 3W-600	
+			_characterTF.y = Math.random()*(this._stageH - 600) + 300; //随机y 300 ~ H-600	
+			_characterTF.width = 80;
+			_characterTF.height = 80;
+			_characterTF.text = this._characterArray[index];
+			_characterTF.size = 35;
+			_characterTF.textColor = 0x000000;
+			_characterTF.textAlign = egret.HorizontalAlign.CENTER;
+			_characterTF.verticalAlign = egret.VerticalAlign.MIDDLE;
+			_characterTF.background = true;
+			_characterTF.backgroundColor = 0xff0000;
+			this._background.addChild(_characterTF);
+
+			//添加到数组
+			this._characterTFArray.push(_characterTF);
+
+			//和所有文字tf比较位置
+			for(let index = 0; index < this._characterTFArray.length; index++) {
+
+				let characterTF = this._characterTFArray[index];
+				let spaceX = Math.abs(characterTF.x - _characterTF.x);
+				let spaceY = Math.abs(characterTF.y - _characterTF.y); 
+				if(spaceX < 100 && spaceY < 100) {
+					_characterTF.x += 100;
+				}
+			}
+
+			//和障碍物xy值比较,避免重叠
+			for(let index = 0; index < this._barrierArray.length; index++) {
+
+				let barrier = this._barrierArray[index];
+				let spaceX = Math.abs(barrier.x - _characterTF.x);
+				let spaceY = Math.abs(barrier.y - _characterTF.y); 
+				if(spaceX < 100 && spaceY < 100) {
+					_characterTF.x += 100;
+				}
+			}
+		}
+
 	}
 
 	//添加触摸事件
@@ -262,7 +332,6 @@ class Game extends egret.DisplayObjectContainer {
 
 		//改变对象位置时同时移动背景
 		this.moveBackground(x > 0 ? false : true, y > 0 ? false : true);
-
 	}
 
 	//自由落体,改变对象和背景
@@ -281,11 +350,13 @@ class Game extends egret.DisplayObjectContainer {
 		if(this._person.x > (this._stageW-this._person.width-150)) this._person.x = this._stageW-this._person.width-150;
 		if(this._person.y > (this._stageH-this._person.height-150)) {
 			this._person.y = this._stageH-this._person.height-150;
-			this._isFall = false;
 		}
 		
 		//添加碰撞检测
 		this.checkHit();
+
+		//障碍物碰撞检测
+		this.checkBarrierHit();
 	}
 
 	//背景左右移动方向,与对象相反
@@ -317,34 +388,126 @@ class Game extends egret.DisplayObjectContainer {
 		this._score += 1;
 		this._scoreTF.text = this._score + "分";
 
-
 		this._currentTF.text += this._characterTFArray[index].text; 
-		this._background.removeChild(this._characterTFArray[index]);
-		this._characterTFArray.splice(index, 1);
 
-		//清空	
-		if(this._currentTF.text.length > 4) {
+		this._background.removeChild(this._characterTFArray[index]);	//移除碰撞文字UI
+		this._characterTFArray.splice(index, 1);	//移除碰撞文字UI-数组
+		this._characterArray.splice(index,1);		//移除碰撞文字-数组
 
-			let character = this._currentTF.text.split("");	//将字母字符串转为数组
+		//判断是否吃对了
+		if(this._currentTF.text.length == 4) {
 
-			//把清空掉的文字重新添加
-			for(var index = 0; index < character.length; index++) {
+			//查看是否在当前成语数组
+			for (let index = 0; index <  this._currentIdiomArray.length; index++) {
+
+				if(this._currentTF.text == this._currentIdiomArray[index]) {
+					this._currentIdiomArray.splice(index,1);	//移除该成语数据
+					this._currentIdiomArray.push(this._allIdiomArray[0]);	//添加新数据
+
+					//遍历对应的提示
+					//移除当前吃到的提示成语, 新增提示
+					for(let number = 0; number < this._remindTFArray.length; number++) {
+
+						console.log(this._currentTF.text);
+						console.log( this._remindTFArray[index].text);
+
+						if(this._currentTF.text === this._remindTFArray[index].text) {
+
+							let currentTextField =  this._remindTFArray[number];
+							this._remindTFArray.splice(number,1);
+							this.removeChild(this._remindTFArray[number]);
+
+							let _remindTF = new egret.TextField;
+							_remindTF.x = 20;
+							_remindTF.y = currentTextField.y;
+							_remindTF.width = 200;
+							_remindTF.height = 25;
+							_remindTF.textColor = 0xff6600;
+							_remindTF.verticalAlign = egret.VerticalAlign.MIDDLE;
+							_remindTF.size = 20;
+							_remindTF.text = this._allIdiomArray[0];
+							_remindTF.fontFamily = "Microsoft YaHei";
+							this.addChild(_remindTF);
+
+							this._remindTFArray.push(_remindTF);
+						}
+					}
+
+				}
+			}
+
+			this._currentTF.text = "";
+
+			let characterString = this._allIdiomArray[0].replace(/,/g,""); 	//将单词数组转为字符串,并且去掉所有逗号
+			let newCharacter = characterString.split("");	//将字母字符串转为数组
+			Array.prototype.push.apply(this._characterArray, newCharacter); 	//追加到字母数组
+			
+			//添加第一个之后删除
+			this._allIdiomArray.splice(0,1);
+
+			//添加新增加的文字
+			for(var index = 0; index < newCharacter.length; index++) {
 				let _characterTF  = new egret.TextField();
-				_characterTF.x = Math.random()*(3*this._stageW -600) + 300;
-				_characterTF.y = Math.random()*(this._stageH - 600) + 300;
+				_characterTF.x = Math.random()*(3*this._stageW - 800) + 300; //随机x 300 ~ 3W-600	
+				_characterTF.y = Math.random()*(this._stageH - 600) + 300; //随机y 300 ~ H-600	
 				_characterTF.width = 80;
 				_characterTF.height = 80;
-				_characterTF.text = this._characterArray[index];
-				_characterTF.textColor = 0x000000;
+				_characterTF.text = newCharacter[index];
 				_characterTF.size = 35;
+				_characterTF.textColor = 0x000000;
 				_characterTF.textAlign = egret.HorizontalAlign.CENTER;
 				_characterTF.verticalAlign = egret.VerticalAlign.MIDDLE;
+				_characterTF.background = true;
+				_characterTF.backgroundColor = 0xff0000;
 				this._background.addChild(_characterTF);
 
+				//添加到数组
 				this._characterTFArray.push(_characterTF);
+
+				//和所有文字tf比较位置
+				for(let index = 0; index < this._characterTFArray.length; index++) {
+
+					let characterTF = this._characterTFArray[index];
+					let spaceX = Math.abs(characterTF.x - _characterTF.x);
+					let spaceY = Math.abs(characterTF.y - _characterTF.y); 
+					if(spaceX < 100 && spaceY < 100) {
+						_characterTF.x += 100;
+					}
+				}
+
+				//和障碍物xy值比较,避免重叠
+				for(let index = 0; index < this._barrierArray.length; index++) {
+
+					let barrier = this._barrierArray[index];
+					let spaceX = Math.abs(barrier.x - _characterTF.x);
+					let spaceY = Math.abs(barrier.y - _characterTF.y); 
+					if(spaceX < 100 && spaceY < 100) {
+						_characterTF.x += 100;
+					}
+				}
 			}
-			this._currentTF.text = "";
 		}
+	}
+
+
+	private checkBarrierHit() {
+
+		for(let index = 0; index < this._barrierArray.length; index++) {
+
+			let _barrier = this._barrierArray[index];
+			let _isHit: boolean = _barrier.hitTestPoint(this._person.x+this._person.width/2, this._person.y+this._person.height);
+
+			if(_isHit) {
+				this.hitBarrierAction(index);
+			} 
+		}	
+	}
+
+	private hitBarrierAction(index) {
+		if(this._isHitBarrier == false) {
+			alert("hitBarrierAction");
+		}
+		this._isHitBarrier = true;
 	}
 
 	//每秒计时
@@ -403,12 +566,12 @@ class Game extends egret.DisplayObjectContainer {
 
 			} else if(result["code"] == 2){
 
-				this._overAlert = new Alert(Alert.GamePageShare, "", "", "",0,this.stage.stageHeight,this.stage.stageWidth);
-				this._overAlert.addEventListener(AlertEvent.Share, this.shareButtonClick, this);
-				this._overAlert.addEventListener(AlertEvent.Cancle, function() {
-        			window.location.reload();
+				let _overAlert = new Alert(Alert.GamePageShare, "", "", "",0,this._stageW,this._stageH);
+				_overAlert.addEventListener(AlertEvent.Share, this.shareButtonClick, this);
+				_overAlert.addEventListener(AlertEvent.Cancle, function() {
+					window.location.reload();
 				}, this);
-				this.addChild(this._overAlert);
+				this.addChild(_overAlert);
 			}
 		}, this);
 		request.addEventListener(egret.IOErrorEvent.IO_ERROR, function() {
@@ -438,7 +601,7 @@ class Game extends egret.DisplayObjectContainer {
 	        if (result["code"] == 0) {
 			
 				//设置数组		
-				let _idiomArray = ["金蝉脱壳","百里挑一","背水一战"];
+				let _idiomArray = ["金蝉脱壳"];
 				let characterString = _idiomArray.join().replace(/,/g,""); 	//将单词数组转为字符串,并且去掉所有逗号
 				let character = characterString.split("");	//将字母字符串转为数组
 				Array.prototype.push.apply(this._characterArray, character); 	//追加到字母数组
@@ -543,13 +706,17 @@ class Game extends egret.DisplayObjectContainer {
 		this._remindTFArray.splice(0, this._remindTFArray.length);
 
 		//重新添加
+		this._scends = 60;
+        this._score = 0;
+		this._isFall  = true;
+ 		this._isHitBarrier = false;
 
-		this.createGameScene();
+		this.minusGameCount();
     }
 
 	private shareButtonClick() {
         //分享引导图
-        let _shareGuide = new Bitmap("shareGui2_png");
+        let _shareGuide = new Bitmap("shareGui_png");
         _shareGuide.touchEnabled = true;
         _shareGuide.x =  0;
         _shareGuide.y =  0 ;
