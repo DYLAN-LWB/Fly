@@ -41,6 +41,8 @@ class Main extends egret.DisplayObjectContainer {
     }
 
     private onAddToStage(event: egret.Event) {
+     
+
         //设置加载进度界面
         //Config to load process interface
         this.loadingView = new LoadingUI();

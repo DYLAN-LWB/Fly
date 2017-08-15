@@ -44,7 +44,7 @@ var Home = (function (_super) {
     };
     Home.prototype.getUserInfo = function () {
         //test app url
-        this._pageUrl = "http://ceshi.beisu100.com//actity/90001/index.html?uid=5&key=9005e25fa4db0478626e6993e3c38cee&isfrom=1&activitynum=9&timenum=1";
+        this._pageUrl = "http://ceshi.beisu100.com//actity/11/index.html?uid=3&key=1241ea11b7f3b5bf852b3bbc428ef209&isfrom=1&activitynum=11&timenum=1";
         // alert("this._pageUrl = " + this._pageUrl);
         //解析url参数
         var params = this.getUrlParams();

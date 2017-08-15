@@ -16,6 +16,7 @@ var game_file_list = [
 	"bin-debug/Public/Alert.js",
 	"bin-debug/Public/AlertEvent.js",
 	"bin-debug/Public/Bitmap.js",
+	"bin-debug/Public/GameUtil.js",
 	"bin-debug/Public/Info.js",
 	//----auto game_file_list end----
 ];
