@@ -30,10 +30,10 @@ class Game extends egret.DisplayObjectContainer {
 	private _guide;		//触摸点提示箭头
 
 	private _allIdiomArray = [];	//所有成语数组
-	private _currentIdiomArray = [];
+	private _currentIdiomArray = [];	//当前提示的成语
 	private _characterArray = [];	//成语拆分成单个文字
 	private _characterTFArray = [];	//textField数组
-	private _remindTFArray = [];	//成语提词器
+	// private _remindTFArray = [];	//成语提词器
 	private _barrierArray = [];
 	private _currentTF;	//当前吃到的成语
 
@@ -126,21 +126,21 @@ class Game extends egret.DisplayObjectContainer {
 		this._background.addChild(this._clear);
 
 		//提示当前的成语
-		for(var index = 0; index < this._currentIdiomArray.length; index++) {
-			let _remindTF = new egret.TextField;
-			_remindTF.x = 20;
-			_remindTF.y = 400 + 25*index;
-			_remindTF.width = 200;
-			_remindTF.height = 25;
-			_remindTF.textColor = 0xff6600;
-			_remindTF.verticalAlign = egret.VerticalAlign.MIDDLE;
-			_remindTF.size = 20;
-			_remindTF.text = this._currentIdiomArray[index];
-			_remindTF.fontFamily = "Microsoft YaHei";
-			this.addChild(_remindTF);
+		// for(var index = 0; index < this._currentIdiomArray.length; index++) {
+		// 	let _remindTF = new egret.TextField;
+		// 	_remindTF.x = 20;
+		// 	_remindTF.y = 400 + 25*index;
+		// 	_remindTF.width = 200;
+		// 	_remindTF.height = 25;
+		// 	_remindTF.textColor = 0xff6600;
+		// 	_remindTF.verticalAlign = egret.VerticalAlign.MIDDLE;
+		// 	_remindTF.size = 20;
+		// 	_remindTF.text = this._currentIdiomArray[index];
+		// 	_remindTF.fontFamily = "Microsoft YaHei";
+		// 	// this.addChild(_remindTF);
 
-			this._remindTFArray.push(_remindTF);
-		}
+		// 	this._remindTFArray.push(_remindTF);
+		// }
 
 		//已经吃的提示
 		this._currentTF  = new egret.TextField;
@@ -228,6 +228,9 @@ class Game extends egret.DisplayObjectContainer {
 			_characterTF.verticalAlign = egret.VerticalAlign.MIDDLE;
 			this._background.addChild(_characterTF);
 
+			//添加到数组
+			this._characterTFArray.push(_characterTF);
+
 			//和所有文字tf比较位置
 			for(let index = 0; index < this._characterTFArray.length; index++) {
 				let characterTF = this._characterTFArray[index];
@@ -248,8 +251,6 @@ class Game extends egret.DisplayObjectContainer {
 				}
 			}
 
-			//添加到数组
-			this._characterTFArray.push(_characterTF);
 		}
 	}
 
@@ -438,6 +439,9 @@ class Game extends egret.DisplayObjectContainer {
 				Array.prototype.push.apply(this._characterArray, newCharacter); 	//追加到字母数组
 				newRemind = this._allIdiomArray[0];	//新增加的提示成语
 				this._allIdiomArray.splice(0,1); //添加第一个之后删除
+				if(this._allIdiomArray.length < 5) {
+					this.getWords(2);
+				}
 
 			}
 		}
@@ -462,6 +466,9 @@ class Game extends egret.DisplayObjectContainer {
 			_characterTF.verticalAlign = egret.VerticalAlign.MIDDLE;
 			this._background.addChild(_characterTF);
 
+			//添加到数组
+			this._characterTFArray.push(_characterTF);
+
 			//和所有文字tf比较位置
 			for(let index = 0; index < this._characterTFArray.length; index++) {
 				let characterTF = this._characterTFArray[index];
@@ -480,35 +487,32 @@ class Game extends egret.DisplayObjectContainer {
 					_characterTF.y += _characterTF.y > this._stageH/2 ? -300 : 300;
 				}
 			}
-
-			//添加到数组
-			this._characterTFArray.push(_characterTF);
 		}
 
 		//遍历对应的提示, 移除当前吃到的提示成语, 新增提示  吃对才删
-		if(_isRight) {
-			for(let number = 0; number < this._remindTFArray.length; number++) {
-				let string :string = this._remindTFArray[number].text;
-				if(currentString == string) {
-					let currentTextField =  this._remindTFArray[number];
-					this.removeChild(this._remindTFArray[number]);
-					this._remindTFArray.splice(number,1);
+		// if(_isRight) {
+		// 	for(let number = 0; number < this._remindTFArray.length; number++) {
+		// 		let string :string = this._remindTFArray[number].text;
+		// 		if(currentString == string) {
+		// 			let currentTextField =  this._remindTFArray[number];
+		// 			this.removeChild(this._remindTFArray[number]);
+		// 			this._remindTFArray.splice(number,1);
 
-					let _remindTF = new egret.TextField;
-					_remindTF.x = 20;
-					_remindTF.y = currentTextField.y;
-					_remindTF.width = 200;
-					_remindTF.height = 25;
-					_remindTF.textColor = 0xff6600;
-					_remindTF.verticalAlign = egret.VerticalAlign.MIDDLE;
-					_remindTF.size = 20;
-					_remindTF.text = newRemind;
-					_remindTF.fontFamily = "Microsoft YaHei";
-					this.addChild(_remindTF);
-					this._remindTFArray.push(_remindTF);
-				}
-			}
-		}
+		// 			let _remindTF = new egret.TextField;
+		// 			_remindTF.x = 20;
+		// 			_remindTF.y = currentTextField.y;
+		// 			_remindTF.width = 200;
+		// 			_remindTF.height = 25;
+		// 			_remindTF.textColor = 0xff6600;
+		// 			_remindTF.verticalAlign = egret.VerticalAlign.MIDDLE;
+		// 			_remindTF.size = 20;
+		// 			_remindTF.text = newRemind;
+		// 			_remindTF.fontFamily = "Microsoft YaHei";
+		// 			this.addChild(_remindTF);
+		// 			this._remindTFArray.push(_remindTF);
+		// 		}
+		// 	}
+		// }
 	}
 
 	private checkBarrierHit() {
@@ -633,20 +637,19 @@ class Game extends egret.DisplayObjectContainer {
 				for(let i = 0; i < result["data"].length; i++) {
 					let text = result["data"][i]["right"];
 					_idiomArray.push(text);
-				}//xccjun_LP
-
+				}
 					
-
 				Array.prototype.push.apply(this._allIdiomArray, _idiomArray); 	//将请求到的单词添加到大数组
-				this._currentIdiomArray.push(this._allIdiomArray[0]);	//将前两个添加到数组
-				this._currentIdiomArray.push(this._allIdiomArray[1]);
-				this._allIdiomArray.splice(0,2);	//添加完后删除
-				let characterString = this._currentIdiomArray.join().replace(/,/g,""); 	//将单词数组转为字符串,并且去掉所有逗号
-				let character = characterString.split("");	//将字母字符串转为数组
-				Array.prototype.push.apply(this._characterArray, character); 	//追加到字母数组
 
 				//接口请求成功添加UI
 				if (type == 1) {
+					this._currentIdiomArray.push(this._allIdiomArray[0]);	//初次将前两个添加到数组
+					this._currentIdiomArray.push(this._allIdiomArray[1]);
+					this._allIdiomArray.splice(0,2);	//添加完后删除
+					let characterString = this._currentIdiomArray.join().replace(/,/g,""); 	//将单词数组转为字符串,并且去掉所有逗号
+					let character = characterString.split("");	//将字母字符串转为数组
+					Array.prototype.push.apply(this._characterArray, character); 	//追加到字母数组
+
 					this.setupViews();
 					this.addTouchEvent();
 				} 
@@ -742,7 +745,7 @@ class Game extends egret.DisplayObjectContainer {
 		this._currentIdiomArray.splice(0, this._currentIdiomArray.length);
 		this._characterArray.splice(0, this._characterArray.length);
 		this._characterTFArray.splice(0, this._characterTFArray.length);
-		this._remindTFArray.splice(0, this._remindTFArray.length);
+		// this._remindTFArray.splice(0, this._remindTFArray.length);
 		this._barrierArray.splice(0, this._barrierArray.length);
 
 		//重新添加

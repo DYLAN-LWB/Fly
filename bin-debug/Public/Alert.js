@@ -1,11 +1,16 @@
 var __reflect = (this && this.__reflect) || function (p, c, t) {
     p.__class__ = c, t ? t.push(c) : t = [c], p.__types__ = p.__types__ ? t.concat(p.__types__) : t;
 };
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 /***
  *弹窗对话框
  */
@@ -210,10 +215,10 @@ var Alert = (function (_super) {
         var event = new AlertEvent(AlertEvent.Cancle);
         this.dispatchEvent(event);
     };
+    Alert.HomePageShare = 1; //首页没有挑战次数时提示分享
+    Alert.GamePageScore = 2; //游戏结束时的提示
+    Alert.GamePageShare = 3; //游戏结束点击重玩却没有次数时提示分享
     return Alert;
 }(egret.Sprite));
-Alert.HomePageShare = 1; //首页没有挑战次数时提示分享
-Alert.GamePageScore = 2; //游戏结束时的提示
-Alert.GamePageShare = 3; //游戏结束点击重玩却没有次数时提示分享
 __reflect(Alert.prototype, "Alert");
 //# sourceMappingURL=Alert.js.map
