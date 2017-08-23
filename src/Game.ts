@@ -90,7 +90,7 @@ class Game extends egret.DisplayObjectContainer {
 		//背景图片
 		let bg = new Bitmap("bg_jpg");
 		bg.x = 0;
-		bg.y =0;
+		bg.y = 0;
 		bg.width = this._stageW;
 		bg.height = this._stageH;
 		this.addChild(bg);
@@ -111,14 +111,14 @@ class Game extends egret.DisplayObjectContainer {
 		this.addCharacter();
 
 		//添加对象
-		this._person.x = 200;
-		this._person.y = 300;
+		this._person.x = 300;
+		this._person.y = 500;
 		this._person.width = 80;
 		this._person.height = 80;
 		this.addChild(this._person);
 
-		this._bubble.x = 180;
-		this._bubble.y = 280;
+		this._bubble.x = 280;
+		this._bubble.y = 480;
 		this._bubble.width = 120;
 		this._bubble.height = 120;
 		this.addChild(this._bubble);
@@ -219,10 +219,27 @@ class Game extends egret.DisplayObjectContainer {
         this._gameTimer.start();
 	}
 
+	private _topBarrier = new Bitmap("bg1_png");
+	private _bottomBarrier = new Bitmap("bg2_png");
+
 	//添加障碍物
 	private addBarrier() {
+		//上边障碍物
+		this._topBarrier.x = 0;
+		this._topBarrier.y = 110;
+		this._topBarrier.width = this._stageW;
+		this._topBarrier.height = 144;
+		this.addChild(this._topBarrier);
+
+		this._bottomBarrier.x = 0;
+		this._bottomBarrier.y = this._stageH- 144;
+		this._bottomBarrier.width = this._stageW;
+		this._bottomBarrier.height = 144;
+		this.addChild(this._bottomBarrier);
+
+		//随机障碍物
 		if(this._barrierArray.length > 0) {
-			for(var index = 0; index < 5; index++) {
+			for(var index = 0; index < 3; index++) {
 				if(this._barrierArray[index] && this._barrierArray[index].parent) {
 					this._barrierArray[index].parent.removeChild(this._barrierArray[index])
 				};	
@@ -230,7 +247,7 @@ class Game extends egret.DisplayObjectContainer {
 			}			
 		}
 
-		let splice = 3*this._stageW/6;
+		let splice = 3*this._stageW/4;
 		for(var index = 0; index < 5; index++) {
 			let _barrier  = new Bitmap("monster_png");
 			_barrier.x = splice*index + 300;
@@ -267,8 +284,6 @@ class Game extends egret.DisplayObjectContainer {
 			this._background.addChild(_charBg);
 
 			this._background.addChild(_characterTF);
-
-
 
 			//添加到数组
 			this._characterTFArray.push(_characterTF);
@@ -370,7 +385,7 @@ class Game extends egret.DisplayObjectContainer {
 
 	//触摸不松手或者移动时的帧事件
 	private touchChangeLocation() {
-		
+
 		var ratioX = Math.cos((this._touchPersonY - this._touchY)/(this._touchPersonX - this._touchX));
 		var ratioY = Math.sin((this._touchPersonY - this._touchY)/(this._touchPersonX - this._touchX));
 
@@ -392,6 +407,8 @@ class Game extends egret.DisplayObjectContainer {
 
 	//自由落体,改变对象和背景
 	private freeFall() {
+
+		console.log("freefall");
 		//手指离开屏幕时x值改变
 		if(this._isFall == true) {
 			var x = this._touchX < this._touchPersonX ? 3 : -3;
@@ -594,12 +611,22 @@ class Game extends egret.DisplayObjectContainer {
 
 			if(_isHit) {
 				if(this._isHitBarrier == false) {
-					console.log("hitBarrierAction");
+					this.gameTimerCompleteFunc();
 				}
 				this._isHitBarrier = true;
 			} 
 		}	
+
+		let _isTopHit: boolean = this._topBarrier.hitTestPoint(this._person.x+this._person.width/2, this._person.y+this._person.height);
+		let _isBottomHit: boolean = this._bottomBarrier.hitTestPoint(this._person.x+this._person.width/2, this._person.y+this._person.height);
+		if(_isTopHit || _isBottomHit) {
+			if(this._isHitBarrier == false) {
+				this.gameTimerCompleteFunc();
+			}
+			this._isHitBarrier = true;		
+		}
 	}
+
 
 	private checkClear () {
 		let _isHit: boolean = this._clear.hitTestPoint(this._person.x+this._person.width/2, this._person.y+this._person.height);
@@ -627,9 +654,11 @@ class Game extends egret.DisplayObjectContainer {
 
 		//游戏结束
 	private gameTimerCompleteFunc () {
+		this._person.removeEventListener(egret.Event.ENTER_FRAME, this.freeFall, this);
+		this._person.removeEventListener(egret.Event.ENTER_FRAME, this.touchChangeLocation, this);
+
 
 		this.removeTouchEvent();
-
 		//请求游戏结束接口
 		this.gameOver();
 

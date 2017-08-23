@@ -30,6 +30,8 @@ var Game = (function (_super) {
         _this._barrierArray = [];
         _this._isHitBarrier = false;
         _this._clear = new Bitmap("magic_png"); //对象
+        _this._topBarrier = new Bitmap("bg1_png");
+        _this._bottomBarrier = new Bitmap("bg2_png");
         _this.addEventListener(egret.Event.ADDED_TO_STAGE, _this.createGameScene, _this);
         return _this;
     }
@@ -86,13 +88,13 @@ var Game = (function (_super) {
         //添加文字相关
         this.addCharacter();
         //添加对象
-        this._person.x = 200;
-        this._person.y = 300;
+        this._person.x = 300;
+        this._person.y = 500;
         this._person.width = 80;
         this._person.height = 80;
         this.addChild(this._person);
-        this._bubble.x = 180;
-        this._bubble.y = 280;
+        this._bubble.x = 280;
+        this._bubble.y = 480;
         this._bubble.width = 120;
         this._bubble.height = 120;
         this.addChild(this._bubble);
@@ -184,8 +186,20 @@ var Game = (function (_super) {
     };
     //添加障碍物
     Game.prototype.addBarrier = function () {
+        //上边障碍物
+        this._topBarrier.x = 0;
+        this._topBarrier.y = 110;
+        this._topBarrier.width = this._stageW;
+        this._topBarrier.height = 144;
+        this.addChild(this._topBarrier);
+        this._bottomBarrier.x = 0;
+        this._bottomBarrier.y = this._stageH - 144;
+        this._bottomBarrier.width = this._stageW;
+        this._bottomBarrier.height = 144;
+        this.addChild(this._bottomBarrier);
+        //随机障碍物
         if (this._barrierArray.length > 0) {
-            for (var index = 0; index < 5; index++) {
+            for (var index = 0; index < 3; index++) {
                 if (this._barrierArray[index] && this._barrierArray[index].parent) {
                     this._barrierArray[index].parent.removeChild(this._barrierArray[index]);
                 }
@@ -193,7 +207,7 @@ var Game = (function (_super) {
                 this._barrierArray.splice(index, 1);
             }
         }
-        var splice = 3 * this._stageW / 6;
+        var splice = 3 * this._stageW / 4;
         for (var index = 0; index < 5; index++) {
             var _barrier = new Bitmap("monster_png");
             _barrier.x = splice * index + 300;
@@ -318,6 +332,7 @@ var Game = (function (_super) {
     };
     //自由落体,改变对象和背景
     Game.prototype.freeFall = function () {
+        console.log("freefall");
         //手指离开屏幕时x值改变
         if (this._isFall == true) {
             var x = this._touchX < this._touchPersonX ? 3 : -3;
@@ -483,10 +498,18 @@ var Game = (function (_super) {
             var _isHit = _barrier.hitTestPoint(this._person.x + this._person.width / 2, this._person.y + this._person.height);
             if (_isHit) {
                 if (this._isHitBarrier == false) {
-                    console.log("hitBarrierAction");
+                    this.gameTimerCompleteFunc();
                 }
                 this._isHitBarrier = true;
             }
+        }
+        var _isTopHit = this._topBarrier.hitTestPoint(this._person.x + this._person.width / 2, this._person.y + this._person.height);
+        var _isBottomHit = this._bottomBarrier.hitTestPoint(this._person.x + this._person.width / 2, this._person.y + this._person.height);
+        if (_isTopHit || _isBottomHit) {
+            if (this._isHitBarrier == false) {
+                this.gameTimerCompleteFunc();
+            }
+            this._isHitBarrier = true;
         }
     };
     Game.prototype.checkClear = function () {
@@ -512,6 +535,8 @@ var Game = (function (_super) {
     };
     //游戏结束
     Game.prototype.gameTimerCompleteFunc = function () {
+        this._person.removeEventListener(egret.Event.ENTER_FRAME, this.freeFall, this);
+        this._person.removeEventListener(egret.Event.ENTER_FRAME, this.touchChangeLocation, this);
         this.removeTouchEvent();
         //请求游戏结束接口
         this.gameOver();
