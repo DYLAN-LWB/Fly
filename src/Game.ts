@@ -26,6 +26,7 @@ class Game extends egret.DisplayObjectContainer {
 
 	//this game
 	private _person = new Bitmap("person_png");	//对象
+	private _bubble = new Bitmap("papaw_png");
 	private _isFall = false;	//判断自由落体时是否需要改变x
 	private _guide;		//触摸点提示箭头
 
@@ -33,13 +34,14 @@ class Game extends egret.DisplayObjectContainer {
 	private _currentIdiomArray = [];	//当前提示的成语
 	private _characterArray = [];	//成语拆分成单个文字
 	private _characterTFArray = [];	//textField数组
+	private _characterBgArray = [];	//textField背景数组
 	// private _remindTFArray = [];	//成语提词器
 	private _barrierArray = [];
 	private _currentTF;	//当前吃到的成语
 
 	private _isHitBarrier = false;
 
-	private _clear = new Bitmap("person_png");	//对象
+	private _clear = new Bitmap("magic_png");	//对象
 
 
 	private createGameScene() {
@@ -102,16 +104,22 @@ class Game extends egret.DisplayObjectContainer {
 		//添加对象
 		this._person.x = 200;
 		this._person.y = 300;
-		this._person.width = 100;
-		this._person.height = 100;
+		this._person.width = 80;
+		this._person.height = 80;
 		this.addChild(this._person);
 
+		this._bubble.x = 180;
+		this._bubble.y = 280;
+		this._bubble.width = 120;
+		this._bubble.height = 120;
+		this.addChild(this._bubble);
+
 		//提示箭头
-		this._guide = new Bitmap("start_png");
+		this._guide = new Bitmap("guide1_png");
 		this._guide.x = 200;
 		this._guide.y = 200;
 		this._guide.width = 100;
-		this._guide.height = 15;
+		this._guide.height = 100;
 		this._guide.alpha = 0;
 		this.addChild(this._guide);
 
@@ -121,8 +129,8 @@ class Game extends egret.DisplayObjectContainer {
 		//清空
 		this._clear.x = Math.random()*(3*this._stageW - 800) + 400; //随机x 300 ~ 3W-600	
 		this._clear.y = Math.random()*(this._stageH - 600) + 300; //随机y 300 ~ H-600	
-		this._clear.width = 100;
-		this._clear.height = 100;
+		this._clear.width = 80;
+		this._clear.height = 80;
 		this._background.addChild(this._clear);
 
 		//提示当前的成语
@@ -201,11 +209,11 @@ class Game extends egret.DisplayObjectContainer {
 
 		let splice = 3*this._stageW/6;
 		for(var index = 0; index < 5; index++) {
-			let _barrier  = new Bitmap("zhadan_test_png");
+			let _barrier  = new Bitmap("monster_png");
 			_barrier.x = splice*index + 300;
 			_barrier.y = Math.random()*(this._stageH - 600) + 300;
 			_barrier.width = 80;
-			_barrier.height = 66;
+			_barrier.height = 80;
 			this._background.addChild(_barrier);
 
 			this._barrierArray.push(_barrier);
@@ -216,28 +224,42 @@ class Game extends egret.DisplayObjectContainer {
 	private addCharacter() {
 
 		for(var index = 0; index < this._characterArray.length; index++) {
+
 			let _characterTF  = new egret.TextField();
 			_characterTF.x = Math.random()*(3*this._stageW - 800) + 300; //随机x 300 ~ 3W-600	
 			_characterTF.y = Math.random()*(this._stageH - 400) + 200; //随机y 300 ~ H-600	
-			_characterTF.width = 100;
-			_characterTF.height = 100;
+			_characterTF.width = 80;
+			_characterTF.height = 80;
 			_characterTF.text = this._characterArray[index];
 			_characterTF.size = 35;
-			_characterTF.textColor = 0x000000;
+			_characterTF.textColor = 0xffffff;
 			_characterTF.textAlign = egret.HorizontalAlign.CENTER;
 			_characterTF.verticalAlign = egret.VerticalAlign.MIDDLE;
+
+			let _charBg = new Bitmap("ball1_png");
+			_charBg.x = _characterTF.x;
+			_charBg.y = _characterTF.y;
+			_charBg.width = 80;
+			_charBg.height = 80;
+			this._background.addChild(_charBg);
+
 			this._background.addChild(_characterTF);
+
+
 
 			//添加到数组
 			this._characterTFArray.push(_characterTF);
+			this._characterBgArray.push(_charBg);
 
 			//和所有文字tf比较位置
 			for(let index = 0; index < this._characterTFArray.length; index++) {
 				let characterTF = this._characterTFArray[index];
+				let characterBg = this._characterBgArray[index];
 				let spaceX = Math.abs(characterTF.x - _characterTF.x);
 				let spaceY = Math.abs(characterTF.y - _characterTF.y); 
 				if(spaceX < 200 && spaceY < 200) {
 					_characterTF.y += _characterTF.y > this._stageH/2 ? -200 : 200;
+					_charBg.y += _charBg.y > this._stageH/2 ? -200 : 200;
 				}
 			}
 
@@ -248,6 +270,7 @@ class Game extends egret.DisplayObjectContainer {
 				let spaceY = Math.abs(barrier.y - _characterTF.y); 
 				if(spaceX < 200 && spaceY < 200) {
 					_characterTF.y += _characterTF.y > this._stageH/2 ? -200 : 200;
+					_charBg.y += _charBg.y > this._stageH/2 ? -200 : 200;
 				}
 			}
 
@@ -337,6 +360,9 @@ class Game extends egret.DisplayObjectContainer {
 		this._person.x += x;
 		this._person.y += y;
 
+		this._bubble.x = this._person.x - 20;
+		this._bubble.y = this._person.y - 20;
+
 		//改变对象位置时同时移动背景
 		this.moveBackground(x > 0 ? false : true, y > 0 ? false : true);
 	}
@@ -352,13 +378,20 @@ class Game extends egret.DisplayObjectContainer {
 		
 		this._person.y += 1;
 
-		if(this._person.x < 150)  this._person.x = 150;
-		if(this._person.y < 150)  this._person.y = 150;
-		if(this._person.x > (this._stageW-this._person.width-150)) this._person.x = this._stageW-this._person.width-150;
-		if(this._person.y > (this._stageH-this._person.height-150)) {
-			this._person.y = this._stageH-this._person.height-150;
+		if(this._person.x < 150) {
+			this._person.x = 150;
 		}
+		// if(this._person.y < 150)  this._person.y = 150;
+		if(this._person.x > (this._stageW-this._person.width-150)) {
+			this._person.x = this._stageW-this._person.width-150;
+		}
+		// if(this._person.y > (this._stageH-this._person.height-150)) {
+		// 	this._person.y = this._stageH-this._person.height-150;
+		// }
 		
+		this._bubble.x = this._person.x - 20;
+		this._bubble.y = this._person.y - 20;
+
 		//添加碰撞检测
 		this.checkHit();
 
@@ -398,7 +431,9 @@ class Game extends egret.DisplayObjectContainer {
 
 		//删除该文字的相关数据
 		this._background.removeChild(this._characterTFArray[index]);	//移除碰撞文字UI
+		this._background.removeChild(this._characterBgArray[index]);	//移除碰撞文字UI
 		this._characterTFArray.splice(index, 1);	//移除碰撞文字UI-数组
+		this._characterBgArray.splice(index, 1);	//移除碰撞文字UI-数组
 		this._characterArray.splice(index,1);		//移除碰撞文字-数组
 
 		//判断是否吃对了
@@ -457,25 +492,36 @@ class Game extends egret.DisplayObjectContainer {
 			let _characterTF  = new egret.TextField();
 			_characterTF.x = Math.random()*(3*this._stageW - 800) + 300; //随机x 300 ~ 3W-600	
 			_characterTF.y = Math.random()*(this._stageH - 600) + 300; //随机y 300 ~ H-600	
-			_characterTF.width = 100;
-			_characterTF.height = 100;
+			_characterTF.width = 80;
+			_characterTF.height = 80;
 			_characterTF.text = newCharacter[num];
 			_characterTF.size = 35;
 			_characterTF.textColor = 0x000000;
 			_characterTF.textAlign = egret.HorizontalAlign.CENTER;
 			_characterTF.verticalAlign = egret.VerticalAlign.MIDDLE;
+
+			let _charBg = new Bitmap("ball2_png");
+			_charBg.x = _characterTF.x;
+			_charBg.y = _characterTF.y;
+			_charBg.width = 80;
+			_charBg.height = 80;
+			this._background.addChild(_charBg);
+
 			this._background.addChild(_characterTF);
 
 			//添加到数组
 			this._characterTFArray.push(_characterTF);
+			this._characterBgArray.push(_charBg);
 
 			//和所有文字tf比较位置
 			for(let index = 0; index < this._characterTFArray.length; index++) {
 				let characterTF = this._characterTFArray[index];
+				let characterBg = this._characterBgArray[index];
 				let spaceX = Math.abs(characterTF.x - _characterTF.x);
 				let spaceY = Math.abs(characterTF.y - _characterTF.y); 
 				if(spaceX < 200 && spaceY < 200) {
 					_characterTF.y += _characterTF.y > this._stageH/2 ? -300 : 300;
+					_charBg.y += _charBg.y > this._stageH/2 ? -300 : 300;
 				}
 			}
 			//和障碍物xy值比较,避免重叠
@@ -485,6 +531,7 @@ class Game extends egret.DisplayObjectContainer {
 				let spaceY = Math.abs(barrier.y - _characterTF.y); 
 				if(spaceX < 200 && spaceY < 200) {
 					_characterTF.y += _characterTF.y > this._stageH/2 ? -300 : 300;
+					_charBg.y += _charBg.y > this._stageH/2 ? -300 : 300;
 				}
 			}
 		}
@@ -745,6 +792,8 @@ class Game extends egret.DisplayObjectContainer {
 		this._currentIdiomArray.splice(0, this._currentIdiomArray.length);
 		this._characterArray.splice(0, this._characterArray.length);
 		this._characterTFArray.splice(0, this._characterTFArray.length);
+		this._characterBgArray.splice(0, this._characterBgArray.length);
+
 		// this._remindTFArray.splice(0, this._remindTFArray.length);
 		this._barrierArray.splice(0, this._barrierArray.length);
 
