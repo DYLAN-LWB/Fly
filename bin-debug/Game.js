@@ -67,6 +67,13 @@ var Game = (function (_super) {
             this._backgroundChannel.volume = 0.8;
         }, this);
         // sound.load("resource/sound/bg.mp3");
+        //背景图片
+        var bg = new Bitmap("bg_jpg");
+        bg.x = 0;
+        bg.y = 0;
+        bg.width = this._stageW;
+        bg.height = this._stageH;
+        this.addChild(bg);
         //背景
         this._background = new egret.Sprite;
         this._background.x = -this._stageW;
@@ -102,8 +109,8 @@ var Game = (function (_super) {
         //清空
         this._clear.x = Math.random() * (3 * this._stageW - 800) + 400; //随机x 300 ~ 3W-600	
         this._clear.y = Math.random() * (this._stageH - 600) + 300; //随机y 300 ~ H-600	
-        this._clear.width = 100;
-        this._clear.height = 100;
+        this._clear.width = 80;
+        this._clear.height = 80;
         this._background.addChild(this._clear);
         //提示当前的成语
         // for(var index = 0; index < this._currentIdiomArray.length; index++) {
@@ -120,41 +127,54 @@ var Game = (function (_super) {
         // 	// this.addChild(_remindTF);
         // 	this._remindTFArray.push(_remindTF);
         // }
+        var my_word = new egret.TextField;
+        my_word.x = 0;
+        my_word.y = 250;
+        my_word.width = this._stageW / 2;
+        my_word.height = 50;
+        my_word.textColor = 0xffffff;
+        my_word.verticalAlign = egret.VerticalAlign.MIDDLE;
+        my_word.textAlign = egret.HorizontalAlign.RIGHT;
+        my_word.size = 35;
+        my_word.text = "我的成语：";
+        my_word.fontFamily = "Microsoft YaHei";
+        this.addChild(my_word);
         //已经吃的提示
         this._currentTF = new egret.TextField;
-        this._currentTF.x = 0;
-        this._currentTF.y = 20;
-        this._currentTF.width = this._stageW;
+        this._currentTF.x = this._stageW / 2;
+        this._currentTF.y = 250;
+        this._currentTF.width = this._stageW / 2;
         this._currentTF.height = 50;
-        this._currentTF.textColor = 0xff6600;
+        this._currentTF.textColor = 0xFFFF00;
         this._currentTF.verticalAlign = egret.VerticalAlign.MIDDLE;
-        this._currentTF.textAlign = egret.HorizontalAlign.CENTER;
+        this._currentTF.textAlign = egret.HorizontalAlign.LEFT;
         this._currentTF.size = 35;
+        this._currentTF.text = "";
         this._currentTF.fontFamily = "Microsoft YaHei";
         this.addChild(this._currentTF);
         //分数提示
         this._scoreTF = new egret.TextField();
-        this._scoreTF.x = 33;
-        this._scoreTF.y = 20;
+        this._scoreTF.x = 90;
+        this._scoreTF.y = 35;
         this._scoreTF.width = 333;
         this._scoreTF.height = 55;
-        this._scoreTF.textColor = 0x20544a;
+        this._scoreTF.textColor = 0xff6c14;
         this._scoreTF.textAlign = egret.HorizontalAlign.CENTER;
-        this._scoreTF.size = 30;
+        this._scoreTF.size = 40;
         this._scoreTF.text = this._score + "分";
         this._scoreTF.fontFamily = "Microsoft YaHei";
         this.addChild(this._scoreTF);
         //倒计时提示
         this._scendsTF = new egret.TextField();
-        this._scendsTF.x = this.stage.stageWidth * 0.75;
-        this._scendsTF.y = 20;
-        this._scendsTF.width = this.stage.stageWidth * 0.25;
+        this._scendsTF.x = this.stage.stageWidth * 0.85;
+        this._scendsTF.y = 35;
+        this._scendsTF.width = this.stage.stageWidth * 0.15;
         this._scendsTF.height = 55;
         this._scendsTF.fontFamily = "Microsoft YaHei";
         this._scendsTF.textColor = 0xff6c14;
         this._scendsTF.textAlign = egret.HorizontalAlign.CENTER;
-        this._scendsTF.size = 50;
-        this._scendsTF.text = this._scends + "秒";
+        this._scendsTF.size = 40;
+        this._scendsTF.text = this._scends;
         this.addChild(this._scendsTF);
         //游戏计时器
         this._gameTimer = new egret.Timer(1000, this._scends);
@@ -480,7 +500,7 @@ var Game = (function (_super) {
     //每秒计时
     Game.prototype.gameTimerFunc = function () {
         this._scends--;
-        this._scendsTF.text = this._scends + "秒";
+        this._scendsTF.text = this._scends;
         //剩5秒时播放倒计时音乐
         if (this._scends == 5) {
             var sound_1 = new egret.Sound();
