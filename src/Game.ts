@@ -117,18 +117,30 @@ class Game extends egret.DisplayObjectContainer {
 		this._person.height = 80;
 		this.addChild(this._person);
 
+		this._bubble.texture = RES.getRes("papaw_png");
 		this._bubble.x = 280;
 		this._bubble.y = 480;
+		this._bubble.anchorOffsetX = 0;
+		this._bubble.anchorOffsetY = 0;
 		this._bubble.width = 120;
 		this._bubble.height = 120;
 		this.addChild(this._bubble);
 
 		//提示箭头
-		this._guide = new Bitmap("guide1_png");
-		this._guide.x = 200;
+		// this._guide = new Bitmap("guide1_png");
+		// this._guide.x = 200;
+		// this._guide.y = 200;
+		// this._guide.width = 100;
+		// this._guide.height = 100;
+		// this._guide.alpha = 0;
+		// this.addChild(this._guide);
+
+		this._guide = new Movie();
+        this._guide.init("guide_json","guide_png","guide",-1);
+        this._guide.x = 200;
 		this._guide.y = 200;
 		this._guide.width = 100;
-		this._guide.height = 100;
+		this._guide.height = 60;
 		this._guide.alpha = 0;
 		this.addChild(this._guide);
 
@@ -263,8 +275,8 @@ class Game extends egret.DisplayObjectContainer {
 	//添加随机文字
 	private addCharacter() {
 
+		this._characterArray.sort();
 		for(var index = 0; index < this._characterArray.length; index++) {
-
 			let _characterTF  = new egret.TextField();
 			_characterTF.x = Math.random()*(3*this._stageW - 800) + 300; //随机x 300 ~ 3W-600	
 			_characterTF.y = Math.random()*(this._stageH - 400) + 200; //随机y 300 ~ H-600	
@@ -276,7 +288,9 @@ class Game extends egret.DisplayObjectContainer {
 			_characterTF.textAlign = egret.HorizontalAlign.CENTER;
 			_characterTF.verticalAlign = egret.VerticalAlign.MIDDLE;
 
-			let _charBg = new Bitmap("ball1_png");
+
+			let string = index%2 == 0 ? "ball1_png" : "ball2_png";
+			let _charBg = new Bitmap(string);
 			_charBg.x = _characterTF.x;
 			_charBg.y = _characterTF.y;
 			_charBg.width = 80;
@@ -296,8 +310,8 @@ class Game extends egret.DisplayObjectContainer {
 				let spaceX = Math.abs(characterTF.x - _characterTF.x);
 				let spaceY = Math.abs(characterTF.y - _characterTF.y); 
 				if(spaceX < 200 && spaceY < 200) {
-					_characterTF.y += _characterTF.y > this._stageH/2 ? -200 : 200;
-					_charBg.y += _charBg.y > this._stageH/2 ? -200 : 200;
+					_characterTF.y += _characterTF.y > this._stageH/2 ? -300 : 300;
+					_charBg.y += _charBg.y > this._stageH/2 ? -300 : 300;
 				}
 			}
 
@@ -307,8 +321,8 @@ class Game extends egret.DisplayObjectContainer {
 				let spaceX = Math.abs(barrier.x - _characterTF.x);
 				let spaceY = Math.abs(barrier.y - _characterTF.y); 
 				if(spaceX < 200 && spaceY < 200) {
-					_characterTF.y += _characterTF.y > this._stageH/2 ? -200 : 200;
-					_charBg.y += _charBg.y > this._stageH/2 ? -200 : 200;
+					_characterTF.y += _characterTF.y > this._stageH/2 ? -300 : 300;
+					_charBg.y += _charBg.y > this._stageH/2 ? -300 : 300;
 				}
 			}
 
@@ -485,10 +499,6 @@ class Game extends egret.DisplayObjectContainer {
 	//吃对则删除 新增
 	private addNewCharacter() {
 	
-		this.plusScore(1);
-		this._score += 1;
-		this._scoreTF.text = this._score + "分";
-
 		var newCharacter = [];
 		var currentString:string = this._currentTF.text;
 		var newRemind = "";
@@ -503,6 +513,9 @@ class Game extends egret.DisplayObjectContainer {
 			let string :string = this._currentIdiomArray[index];
 			if(currentString == string) {
 				console.log("吃对了");
+				this.plusScore(1);
+				this._score += 1;
+				this._scoreTF.text = this._score + "分";
 				_isRight = true;
 
 				this._currentIdiomArray.splice(index,1);	//移除该成语数据
@@ -518,6 +531,8 @@ class Game extends egret.DisplayObjectContainer {
 					this.getWords(2);
 				}
 
+			} else {
+				console.log("吃错了");
 			}
 		}
 
@@ -528,6 +543,7 @@ class Game extends egret.DisplayObjectContainer {
 		}
 
 		//吃对吃错都得添加新的文字
+		newCharacter.sort();
 		for(let num = 0; num < newCharacter.length; num++) {
 			let _characterTF  = new egret.TextField();
 			_characterTF.x = Math.random()*(3*this._stageW - 800) + 300; //随机x 300 ~ 3W-600	
@@ -536,11 +552,12 @@ class Game extends egret.DisplayObjectContainer {
 			_characterTF.height = 80;
 			_characterTF.text = newCharacter[num];
 			_characterTF.size = 35;
-			_characterTF.textColor = 0x000000;
+			_characterTF.textColor = 0xffffff;
 			_characterTF.textAlign = egret.HorizontalAlign.CENTER;
 			_characterTF.verticalAlign = egret.VerticalAlign.MIDDLE;
 
-			let _charBg = new Bitmap("ball2_png");
+			let string = num%2 == 0 ? "ball1_png" : "ball2_png";
+			let _charBg = new Bitmap(string);
 			_charBg.x = _characterTF.x;
 			_charBg.y = _characterTF.y;
 			_charBg.width = 80;
@@ -652,19 +669,44 @@ class Game extends egret.DisplayObjectContainer {
         }
 	}
 
-		//游戏结束
+	//游戏结束
 	private gameTimerCompleteFunc () {
 		this._person.removeEventListener(egret.Event.ENTER_FRAME, this.freeFall, this);
 		this._person.removeEventListener(egret.Event.ENTER_FRAME, this.touchChangeLocation, this);
-
-
 		this.removeTouchEvent();
-		//请求游戏结束接口
-		this.gameOver();
 
         if (this._countdownChannel) this._countdownChannel.stop();
 		if (this._backgroundChannel) this._backgroundChannel.stop();
 		if (this._gameTimer) this._gameTimer.stop();
+
+		//气泡爆炸动画
+		this._bubble.texture = RES.getRes("baozha1_png");
+		this._bubble.width = 300;
+		this._bubble.height = 300;
+		this._bubble.anchorOffsetX = 180/2;
+		this._bubble.anchorOffsetY = 200/2;
+		this._bubble.x = this._person.x-110;
+		this._bubble.y = this._person.y-110;
+
+		let timer1: egret.Timer = new egret.Timer(200, 1);
+		timer1.addEventListener(egret.TimerEvent.TIMER_COMPLETE,function() {
+
+			this._bubble.texture = RES.getRes("baozha2_png");
+			let timer2: egret.Timer = new egret.Timer(200, 1);
+			timer2.addEventListener(egret.TimerEvent.TIMER_COMPLETE,function(){
+				this._bubble.texture = RES.getRes("baozha3_png");
+			},this);
+			timer2.start();
+		},this);
+		timer1.start();
+
+		//请求游戏结束接口
+		let over: egret.Timer = new egret.Timer(400, 1);
+		over.addEventListener(egret.TimerEvent.TIMER_COMPLETE,function(){
+			this.gameOver();
+		},this);
+		over.start();
+
 	}
 
 
@@ -709,7 +751,7 @@ class Game extends egret.DisplayObjectContainer {
 	}
 
 
-//接口-请求单词, 只在初次请求时添加UI
+	//接口-请求单词, 只在初次请求时添加UI
 	private getWords(type: number) {
 
 		let params = "?vuid=" + this._info._vuid + 
@@ -743,7 +785,7 @@ class Game extends egret.DisplayObjectContainer {
 				//接口请求成功添加UI
 				if (type == 1) {
 					this._currentIdiomArray.push(this._allIdiomArray[0]);	//初次将前两个添加到数组
-					this._currentIdiomArray.push(this._allIdiomArray[1]);
+					// this._currentIdiomArray.push(this._allIdiomArray[1]);
 					this._allIdiomArray.splice(0,2);	//添加完后删除
 					let characterString = this._currentIdiomArray.join().replace(/,/g,""); 	//将单词数组转为字符串,并且去掉所有逗号
 					let character = characterString.split("");	//将字母字符串转为数组

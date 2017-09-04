@@ -121,7 +121,7 @@ class Main extends egret.DisplayObjectContainer {
     private createGameScene() {
 
         this.addChild(new Home());
-                
+
         // this.addChild(new Game());
 
 

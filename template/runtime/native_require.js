@@ -18,6 +18,7 @@ var game_file_list = [
 	"bin-debug/Public/Bitmap.js",
 	"bin-debug/Public/GameUtil.js",
 	"bin-debug/Public/Info.js",
+	"bin-debug/Public/Movie.js",
 	//----auto game_file_list end----
 ];
 

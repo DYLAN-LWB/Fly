@@ -31,7 +31,7 @@ class Home extends egret.DisplayObjectContainer {
         }
 
         //设置背景
-        var homeBackground = new Bitmap("bg_png");
+        var homeBackground = new Bitmap("index_jpg");
         homeBackground.width = this.stage.stageWidth;
 		homeBackground.height = this.stage.stageHeight;
         this.addChild(homeBackground);
@@ -124,7 +124,7 @@ class Home extends egret.DisplayObjectContainer {
         this.removeChild(this._startButton);
         this._overButton = new Bitmap("gamebody_json.ending");
         this._overButton.x = this._isPortraitScreen ? 180 : 780;
-        this._overButton.y = this._isPortraitScreen ? 820 : 570;
+        this._overButton.y = this._isPortraitScreen ? 700 : 570;
         this._overButton.rotation = this._isPortraitScreen ? 0 : -90;
         this._overButton.touchEnabled = true;
         this._overButton.addEventListener(egret.TouchEvent.TOUCH_TAP, function() {
@@ -138,9 +138,10 @@ class Home extends egret.DisplayObjectContainer {
         //规则介绍
         var introduce = new egret.TextField();
         introduce.x = this._isPortraitScreen ? 370 : 365;
-        introduce.y = this._isPortraitScreen ? 600 : 375;
+        introduce.y = this._isPortraitScreen ? 350 : 375;
         introduce.lineSpacing = 15;
         introduce.width = 600;
+        introduce.size = 25;
         introduce.anchorOffsetX = introduce.width / 2;
         introduce.anchorOffsetY = introduce.height / 2;
         introduce.rotation = this._isPortraitScreen ? 0 : -90;
@@ -150,18 +151,18 @@ class Home extends egret.DisplayObjectContainer {
         this._playNumText = new egret.TextField();
         this._playNumText.size = 30;
         this._playNumText.x = this._isPortraitScreen ? 220 : 620;
-        this._playNumText.y = this._isPortraitScreen ? 780 : 520;
+        this._playNumText.y = this._isPortraitScreen ? 630 : 520;
         this._playNumText.rotation = this._isPortraitScreen ? 0 : -90;
         this._playNumText.textColor = 0x275b51;
         this._playNumText.anchorOffsetX = this._playNumText.width / 2;
         this._playNumText.anchorOffsetY = this._playNumText.height / 2;
-        // this._playNumText.text = "您当前有0次挑战机会";
+        this._playNumText.text = "您当前有0次挑战机会";
         this.addChild(this._playNumText);
 
         //开始游戏按钮
-        this._startButton = new Bitmap("start_png");
+        this._startButton = new Bitmap("startgame_png");
         this._startButton.x = this._isPortraitScreen ? 180 : 700;
-        this._startButton.y = this._isPortraitScreen ? 820 : 570;
+        this._startButton.y = this._isPortraitScreen ? 700 : 570;
         this._startButton.rotation = this._isPortraitScreen ? 0 : -90;
         this._startButton.touchEnabled = true;
         this._startButton.addEventListener(egret.TouchEvent.TOUCH_TAP, this.startPlayGame, this);
@@ -170,20 +171,20 @@ class Home extends egret.DisplayObjectContainer {
         //查看排名按钮
         this._rankButton = new Bitmap("ranking_png");
         this._rankButton.x = this._isPortraitScreen ? 180 : 850;
-        this._rankButton.y = this._isPortraitScreen ? 990 : 570;
+        this._rankButton.y = this._isPortraitScreen ? 850 : 570;
         this._rankButton.rotation = this._isPortraitScreen ? 0 : -90;
         this._rankButton.touchEnabled = true;
         this._rankButton.addEventListener(egret.TouchEvent.TOUCH_TAP, this.checkRanking, this);
         this.addChild(this._rankButton);
-
+ 
 		//微信=0 app=1
         if (parseInt(this._info._isfrom) == 0) {
  
             introduce.textFlow = <Array<egret.ITextElement>>[
-                { text: "通过手指力度控制倍倍的跳跃轨迹，使其成功捡到单词，单词完整后加速跳跃。按照倍倍走过的最远距离进行排名，排名前50都有红包奖励。此外，还会随机抽取100名发送幸运红包哦~ ",
-                    style: {"textColor": 0x185b4e, "size": 28} },
+                { text: "通过手指移动控制吹泡泡的方向，使其成功吃到汉字并组成成语，碰到障碍物即游戏结束。根据最高分排名，排名前50都有红包奖励！此外，我们还会随机抽取100名发送幸运红包。每人共有5次挑战机会，分享给好友，让好友为你加油，可增加挑战次数哦~ ",
+                    style: {"textColor": 0x196096} },
                 { text: "分享给好友，让好友为你加油，可增加机会呦~",  
-                style: {"textColor": 0xff3a5f, "size": 28} } ];
+                style: {"textColor": 0xf23b7c} } ];
 
         } else if (parseInt(this._info._isfrom) == 1) {
 
@@ -191,7 +192,7 @@ class Home extends egret.DisplayObjectContainer {
 
             introduce.x = this._isPortraitScreen ? 370 : 480;
             introduce.y = this._isPortraitScreen ? 450 : 375;
-            introduce.text = "通过手指力度控制倍倍的跳跃轨迹，使其成功捡到单词，单词完整后加速跳跃。 ";
+            introduce.text = "通过手指移动控制吹泡泡的方向，使其成功吃到汉字并组成成语，碰到障碍物即游戏结束。 ";
  
             this._startButton.x = this._isPortraitScreen ? 180 : 660;
             this._startButton.y = this._isPortraitScreen ? 660 : 570;
@@ -216,7 +217,7 @@ class Home extends egret.DisplayObjectContainer {
         //微信端检查是否关注
         if (parseInt(this._info._isfrom) == 0) {
             if(this._playCount < 1) { //没有次数点击开始游戏时提示分享
-                this._alert = new Alert(Alert.HomePageShare, "", "", "",0,this.stage.stageHeight,this.stage.stageWidth);
+                this._alert = new Alert(Alert.HomePageShare, "", "", "",0,this.stage.stageWidth ,this.stage.stageHeight);
                 this._alert.x = this._isPortraitScreen ? 0 : 0;
                 this._alert.y = this._isPortraitScreen ? 0 : 750;
                 this._alert.rotation = this._isPortraitScreen ? 0 : -90;
