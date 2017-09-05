@@ -104,6 +104,13 @@ class Game extends egret.DisplayObjectContainer {
         this.addChild(this._background);
 
 
+		// var _left = new egret.Sprite;
+		// _left.graphics.beginFill(0xffffff);
+        // _left.graphics.drawRect(140, 200, 3, this._stageH-300);
+        // _left.graphics.endFill();
+        // this._background.addChild(_left);
+
+
 		//添加障碍物
 		this.addBarrier();
 
@@ -251,7 +258,7 @@ class Game extends egret.DisplayObjectContainer {
 
 		//随机障碍物
 		if(this._barrierArray.length > 0) {
-			for(var index = 0; index < 3; index++) {
+			for(var index = 0; index < 2; index++) {
 				if(this._barrierArray[index] && this._barrierArray[index].parent) {
 					this._barrierArray[index].parent.removeChild(this._barrierArray[index])
 				};	
@@ -259,8 +266,8 @@ class Game extends egret.DisplayObjectContainer {
 			}			
 		}
 
-		let splice = 3*this._stageW/4;
-		for(var index = 0; index < 5; index++) {
+		let splice = 3*this._stageW/2.5;
+		for(var index = 0; index < 2; index++) {
 			let _barrier  = new Bitmap("monster_png");
 			_barrier.x = splice*index + 300;
 			_barrier.y = Math.random()*(this._stageH - 600) + 300;
@@ -403,8 +410,8 @@ class Game extends egret.DisplayObjectContainer {
 		var ratioX = Math.cos((this._touchPersonY - this._touchY)/(this._touchPersonX - this._touchX));
 		var ratioY = Math.sin((this._touchPersonY - this._touchY)/(this._touchPersonX - this._touchX));
 
-		var baseX = (1+Math.abs(ratioX)) * 4; 
-		var baseY = (1+Math.abs(ratioY)) * 4; 
+		var baseX = (1+Math.abs(ratioX)) * 2.5; 
+		var baseY = (1+Math.abs(ratioY)) * 2.5; 
 
 		var x = this._touchX < this._touchPersonX ? baseX : -baseX;
 		var y = this._touchY < this._touchPersonY ? baseY : -baseY;
@@ -427,7 +434,7 @@ class Game extends egret.DisplayObjectContainer {
 		if(this._isFall == true) {
 			var x = this._touchX < this._touchPersonX ? 3 : -3;
 			this._person.x += x;
-			this._person.y += 7;
+			this._person.y += 3;
 		} 
 		
 		this._person.y += 1;
@@ -468,9 +475,9 @@ class Game extends egret.DisplayObjectContainer {
 	//碰撞检测
 	private checkHit() {
 
-		for(let index = 0; index < this._characterTFArray.length; index++) {
+		for(let index = 0; index < this._characterBgArray.length; index++) {
 
-			let _character = this._characterTFArray[index];
+			let _character = this._characterBgArray[index];
 			let _isHit: boolean = _character.hitTestPoint(this._person.x+this._person.width/2, this._person.y+this._person.height);
 			if(_isHit) {
 				this.hitAction(index);
@@ -743,10 +750,12 @@ class Game extends egret.DisplayObjectContainer {
 					window.location.reload();
 				}, this);
 				this.addChild(_overAlert);
+			} else {
+				alert(result["msg"]);
 			}
 		}, this);
 		request.addEventListener(egret.IOErrorEvent.IO_ERROR, function() {
-            alert("post error : " + event);
+            alert("numdown5　post error : " + event);
         }, this);
 	}
 
@@ -756,14 +765,16 @@ class Game extends egret.DisplayObjectContainer {
 
 		let params = "?vuid=" + this._info._vuid + 
 					 "&key=" + this._info._key +
+					 "&timenum=" + this._info._timenum +
+					 "&activitynum=" + this._info._activitynum + 
 					 "&rands=" + this._rands + 
 					 "&isfrom=" + this._info._isfrom;
 		// alert("请求单词接口 - "+this._info._getWord + params);
 		let request = new egret.HttpRequest();
         request.responseType = egret.HttpResponseType.TEXT;
 		console.log(this._info._getWord + params);
-        // request.open(this._info._getWord + params, egret.HttpMethod.GET);
-		request.open("http://ceshi.beisu100.com/beisuapp/typos/GetBallwords/activitynum/11/timenum/1", egret.HttpMethod.GET);
+        request.open(this._info._getWord + params, egret.HttpMethod.GET);
+		// request.open("http://.beisu100.com/beisuapp/typos/GetBallwords/activitynum/11/timenum/1", egret.HttpMethod.GET);
 
         request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
         request.send();
@@ -800,7 +811,7 @@ class Game extends egret.DisplayObjectContainer {
 			}
 		}, this);
 		request.addEventListener(egret.IOErrorEvent.IO_ERROR, function() {
-            alert("post error : " + event);
+            alert("GetBallwords　post error : " + event);
         }, this);
 	}
 	
@@ -825,7 +836,7 @@ class Game extends egret.DisplayObjectContainer {
 			// console.log(result);
 		}, this);
 		request.addEventListener(egret.IOErrorEvent.IO_ERROR, function() {
-            alert("post error : " + event);
+            alert("typostempjump　post error : " + event);
         }, this);
 	}
 
@@ -859,7 +870,7 @@ class Game extends egret.DisplayObjectContainer {
 
 		}, this);
 		request.addEventListener(egret.IOErrorEvent.IO_ERROR, function() {
-            alert("post error : " + event);
+            alert("GameOver　post error : " + event);
         }, this);
     }
 

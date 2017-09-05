@@ -109,7 +109,7 @@ var Home = (function (_super) {
             }
         }, this);
         request.addEventListener(egret.IOErrorEvent.IO_ERROR, function () {
-            alert("post error : " + event);
+            alert("num　post error : " + event);
             this._rankButton.touchEnabled = true;
             this._startButton.touchEnabled = true;
         }, this);
@@ -131,7 +131,7 @@ var Home = (function (_super) {
         //规则介绍
         var introduce = new egret.TextField();
         introduce.x = this._isPortraitScreen ? 370 : 365;
-        introduce.y = this._isPortraitScreen ? 350 : 375;
+        introduce.y = this._isPortraitScreen ? 370 : 375;
         introduce.lineSpacing = 15;
         introduce.width = 600;
         introduce.size = 25;
@@ -169,7 +169,7 @@ var Home = (function (_super) {
         //微信=0 app=1
         if (parseInt(this._info._isfrom) == 0) {
             introduce.textFlow = [
-                { text: "通过手指移动控制吹泡泡的方向，使其成功吃到汉字并组成成语，碰到障碍物即游戏结束。根据最高分排名，排名前50都有红包奖励！此外，我们还会随机抽取100名发送幸运红包。每人共有5次挑战机会，分享给好友，让好友为你加油，可增加挑战次数哦~ ",
+                { text: "通过手指移动控制吹泡泡的方向，使其成功吃到汉字并组成成语，碰到障碍物即游戏结束。根据最高分排名，排名前50都有红包奖励！此外，我们还会随机抽取100名发送幸运红包。每人共有5次挑战机会，",
                     style: { "textColor": 0x196096 } },
                 { text: "分享给好友，让好友为你加油，可增加机会呦~",
                     style: { "textColor": 0xf23b7c } }
@@ -240,7 +240,7 @@ var Home = (function (_super) {
             }
         }, this);
         request.addEventListener(egret.IOErrorEvent.IO_ERROR, function () {
-            alert("post error : " + event);
+            alert("isguanzhu　post error : " + event);
             this._rankButton.touchEnabled = true;
             this._startButton.touchEnabled = true;
         }, this);

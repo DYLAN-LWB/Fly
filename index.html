@@ -35,12 +35,12 @@
 
     <!--这个标签会被替换为项目中所有的 javascript 文件。删除 game_files 标签后，项目文件加载列表将不会变化，请谨慎操作！-->
     <!--game_files_start-->
+	<script egret="lib" src="bin-debug/Public/Alert.js"></script>
 	<script egret="lib" src="bin-debug/Game.js"></script>
-	<script egret="lib" src="bin-debug/Home.js"></script>
 	<script egret="lib" src="bin-debug/LoadingUI.js"></script>
 	<script egret="lib" src="bin-debug/Main.js"></script>
 	<script egret="lib" src="bin-debug/Public/Advert.js"></script>
-	<script egret="lib" src="bin-debug/Public/Alert.js"></script>
+	<script egret="lib" src="bin-debug/Home.js"></script>
 	<script egret="lib" src="bin-debug/Public/AlertEvent.js"></script>
 	<script egret="lib" src="bin-debug/Public/Bitmap.js"></script>
 	<script egret="lib" src="bin-debug/Public/GameUtil.js"></script>
@@ -82,7 +82,7 @@
          * "antialias": //WebGL模式下是否开启抗锯齿，true:开启，false:关闭，默认为false
          * }
          **/
-        egret.runEgret({renderMode:"webgl", audioType:0});
+        egret.runEgret({renderMode:"canvas", audioType:0});
 
          //点击关注二维码移除
         function clickAttention() {

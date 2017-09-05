@@ -21,12 +21,18 @@ class Home extends egret.DisplayObjectContainer {
 		//屏幕适配
         var ua = window.navigator.userAgent.toLowerCase();
         if(ua.match(/MicroMessenger/i) == 'micromessenger'){    //微信
-            this.stage.setContentSize(this._isPortraitScreen ? 750 : 1218, this._isPortraitScreen ? 1218 : 750);
+
+            if (/(iPhone|iPad|iPod|iOS)/i.test(navigator.userAgent)) { //判断iPhone|iPad|iPod|iOS
+                this.stage.setContentSize(this._isPortraitScreen ? 750 : 1218,this._isPortraitScreen ? 1218 : 750);
+            } else if (/(Android)/i.test(navigator.userAgent)) {  //判断Android
+                this.stage.setContentSize(this._isPortraitScreen ? 750 : 1196,this._isPortraitScreen ? 1196 : 750);
+            }
+
         } else {
             if (/(iPhone|iPad|iPod|iOS)/i.test(navigator.userAgent)) { //判断iPhone|iPad|iPod|iOS
                 this.stage.setContentSize(this._isPortraitScreen ? 750 : 1218,this._isPortraitScreen ? 1218 : 750);
             } else if (/(Android)/i.test(navigator.userAgent)) {  //判断Android
-                this.stage.setContentSize(this._isPortraitScreen ? 750 : 1334,this._isPortraitScreen ? 1334 : 750);
+                this.stage.setContentSize(this._isPortraitScreen ? 750 : 1298,this._isPortraitScreen ? 1298 : 750);
             }
         }
 
@@ -46,7 +52,7 @@ class Home extends egret.DisplayObjectContainer {
      public getUserInfo() {
 
         //test app url
-        this._pageUrl = "http://ceshi.beisu100.com//actity/11/index.html?uid=3&key=1241ea11b7f3b5bf852b3bbc428ef209&isfrom=1&activitynum=11&timenum=1";
+        // this._pageUrl = "http://ceshi.beisu100.com//actity/11/index.html?uid=3&key=1241ea11b7f3b5bf852b3bbc428ef209&isfrom=1&activitynum=11&timenum=1";
         // alert("this._pageUrl = " + this._pageUrl);
 
         //解析url参数
@@ -113,7 +119,7 @@ class Home extends egret.DisplayObjectContainer {
             }
         }, this);
         request.addEventListener(egret.IOErrorEvent.IO_ERROR, function() {
-            alert("post error : " + event);
+            alert("num　post error : " + event);
             this._rankButton.touchEnabled = true;
             this._startButton.touchEnabled = true;
         }, this);
@@ -138,7 +144,7 @@ class Home extends egret.DisplayObjectContainer {
         //规则介绍
         var introduce = new egret.TextField();
         introduce.x = this._isPortraitScreen ? 370 : 365;
-        introduce.y = this._isPortraitScreen ? 350 : 375;
+        introduce.y = this._isPortraitScreen ? 370 : 375;
         introduce.lineSpacing = 15;
         introduce.width = 600;
         introduce.size = 25;
@@ -181,7 +187,7 @@ class Home extends egret.DisplayObjectContainer {
         if (parseInt(this._info._isfrom) == 0) {
  
             introduce.textFlow = <Array<egret.ITextElement>>[
-                { text: "通过手指移动控制吹泡泡的方向，使其成功吃到汉字并组成成语，碰到障碍物即游戏结束。根据最高分排名，排名前50都有红包奖励！此外，我们还会随机抽取100名发送幸运红包。每人共有5次挑战机会，分享给好友，让好友为你加油，可增加挑战次数哦~ ",
+                { text: "通过手指移动控制吹泡泡的方向，使其成功吃到汉字并组成成语，碰到障碍物即游戏结束。根据最高分排名，排名前50都有红包奖励！此外，我们还会随机抽取100名发送幸运红包。每人共有5次挑战机会，",
                     style: {"textColor": 0x196096} },
                 { text: "分享给好友，让好友为你加油，可增加机会呦~",  
                 style: {"textColor": 0xf23b7c} } ];
@@ -259,7 +265,7 @@ class Home extends egret.DisplayObjectContainer {
 
         }, this);
         request.addEventListener(egret.IOErrorEvent.IO_ERROR, function() {
-            alert("post error : " + event);
+            alert("isguanzhu　post error : " + event);
             this._rankButton.touchEnabled = true;
             this._startButton.touchEnabled = true;
         }, this);

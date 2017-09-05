@@ -24,17 +24,17 @@
 		{
 			"name": "attention_png",
 			"type": "image",
-			"url": "game/attention.png"
+			"url": "http://beisuapp.oss-cn-beijing.aliyuncs.com/uploads/game/1101/attention.png"
 		},
 		{
 			"name": "black_png",
 			"type": "image",
-			"url": "game/black.png"
+			"url": "http://beisuapp.oss-cn-beijing.aliyuncs.com/uploads/game/1101/black.png"
 		},
 		{
 			"name": "davert_right_png",
 			"type": "image",
-			"url": "game/davert_right.png"
+			"url": "http://beisuapp.oss-cn-beijing.aliyuncs.com/uploads/game/1101/davert_right.png"
 		},
 		{
 			"name": "gamebody_json",
@@ -45,97 +45,97 @@
 		{
 			"name": "person_png",
 			"type": "image",
-			"url": "game/person.png"
+			"url": "http://beisuapp.oss-cn-beijing.aliyuncs.com/uploads/game/1101/person.png"
 		},
 		{
 			"name": "ranking_png",
 			"type": "image",
-			"url": "game/ranking.png"
+			"url": "http://beisuapp.oss-cn-beijing.aliyuncs.com/uploads/game/1101/ranking.png"
 		},
 		{
 			"name": "shareGui_png",
 			"type": "image",
-			"url": "game/shareGui.png"
+			"url": "http://beisuapp.oss-cn-beijing.aliyuncs.com/uploads/game/1101/shareGui.png"
 		},
 		{
 			"name": "baozha1_png",
 			"type": "image",
-			"url": "game/baozha1.png"
+			"url": "http://beisuapp.oss-cn-beijing.aliyuncs.com/uploads/game/1101/baozha1.png"
 		},
 		{
 			"name": "baozha2_png",
 			"type": "image",
-			"url": "game/baozha2.png"
+			"url": "http://beisuapp.oss-cn-beijing.aliyuncs.com/uploads/game/1101/baozha2.png"
 		},
 		{
 			"name": "baozha3_png",
 			"type": "image",
-			"url": "game/baozha3.png"
+			"url": "http://beisuapp.oss-cn-beijing.aliyuncs.com/uploads/game/1101/baozha3.png"
 		},
 		{
 			"name": "ball1_png",
 			"type": "image",
-			"url": "game/ball1.png"
+			"url": "http://beisuapp.oss-cn-beijing.aliyuncs.com/uploads/game/1101/ball1.png"
 		},
 		{
 			"name": "ball2_png",
 			"type": "image",
-			"url": "game/ball2.png"
+			"url": "http://beisuapp.oss-cn-beijing.aliyuncs.com/uploads/game/1101/ball2.png"
 		},
 		{
 			"name": "bg_jpg",
 			"type": "image",
-			"url": "game/bg.jpg"
+			"url": "http://beisuapp.oss-cn-beijing.aliyuncs.com/uploads/game/1101/bg.jpg"
 		},
 		{
 			"name": "bg1_png",
 			"type": "image",
-			"url": "game/bg1.png"
+			"url": "http://beisuapp.oss-cn-beijing.aliyuncs.com/uploads/game/1101/bg1.png"
 		},
 		{
 			"name": "bg2_png",
 			"type": "image",
-			"url": "game/bg2.png"
+			"url": "http://beisuapp.oss-cn-beijing.aliyuncs.com/uploads/game/1101/bg2.png"
 		},
 		{
 			"name": "magic_png",
 			"type": "image",
-			"url": "game/magic.png"
+			"url": "http://beisuapp.oss-cn-beijing.aliyuncs.com/uploads/game/1101/magic.png"
 		},
 		{
 			"name": "monster_png",
 			"type": "image",
-			"url": "game/monster.png"
+			"url": "http://beisuapp.oss-cn-beijing.aliyuncs.com/uploads/game/1101/monster.png"
 		},
 		{
 			"name": "papaw_png",
 			"type": "image",
-			"url": "game/papaw.png"
+			"url": "http://beisuapp.oss-cn-beijing.aliyuncs.com/uploads/game/1101/papaw.png"
 		},
 		{
 			"name": "guide1_png",
 			"type": "image",
-			"url": "game/guide1.png"
+			"url": "http://beisuapp.oss-cn-beijing.aliyuncs.com/uploads/game/1101/guide1.png"
 		},
 		{
 			"name": "guide2_png",
 			"type": "image",
-			"url": "game/guide2.png"
+			"url": "http://beisuapp.oss-cn-beijing.aliyuncs.com/uploads/game/1101/guide2.png"
 		},
 		{
 			"name": "guide3_png",
 			"type": "image",
-			"url": "game/guide3.png"
+			"url": "http://beisuapp.oss-cn-beijing.aliyuncs.com/uploads/game/1101/guide3.png"
 		},
 		{
 			"name": "guide4_png",
 			"type": "image",
-			"url": "game/guide4.png"
+			"url": "http://beisuapp.oss-cn-beijing.aliyuncs.com/uploads/game/1101/guide4.png"
 		},
 		{
 			"name": "guide_png",
 			"type": "image",
-			"url": "game/guide.png"
+			"url": "http://beisuapp.oss-cn-beijing.aliyuncs.com/uploads/game/1101/guide.png"
 		},
 		{
 			"name": "guide_json",
@@ -145,12 +145,12 @@
 		{
 			"name": "index_jpg",
 			"type": "image",
-			"url": "game/index.jpg"
+			"url": "http://beisuapp.oss-cn-beijing.aliyuncs.com/uploads/game/1101/index.jpg"
 		},
 		{
 			"name": "startgame_png",
 			"type": "image",
-			"url": "game/startgame.png"
+			"url": "http://beisuapp.oss-cn-beijing.aliyuncs.com/uploads/game/1101/startgame.png"
 		}
 	]
 }
