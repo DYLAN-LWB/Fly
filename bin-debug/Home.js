@@ -26,14 +26,19 @@ var Home = (function (_super) {
         //屏幕适配
         var ua = window.navigator.userAgent.toLowerCase();
         if (ua.match(/MicroMessenger/i) == 'micromessenger') {
-            this.stage.setContentSize(this._isPortraitScreen ? 750 : 1218, this._isPortraitScreen ? 1218 : 750);
+            if (/(iPhone|iPad|iPod|iOS)/i.test(navigator.userAgent)) {
+                this.stage.setContentSize(this._isPortraitScreen ? 750 : 1218, this._isPortraitScreen ? 1218 : 750);
+            }
+            else if (/(Android)/i.test(navigator.userAgent)) {
+                this.stage.setContentSize(this._isPortraitScreen ? 750 : 1196, this._isPortraitScreen ? 1196 : 750);
+            }
         }
         else {
             if (/(iPhone|iPad|iPod|iOS)/i.test(navigator.userAgent)) {
                 this.stage.setContentSize(this._isPortraitScreen ? 750 : 1218, this._isPortraitScreen ? 1218 : 750);
             }
             else if (/(Android)/i.test(navigator.userAgent)) {
-                this.stage.setContentSize(this._isPortraitScreen ? 750 : 1334, this._isPortraitScreen ? 1334 : 750);
+                this.stage.setContentSize(this._isPortraitScreen ? 750 : 1298, this._isPortraitScreen ? 1298 : 750);
             }
         }
         //设置背景
@@ -44,7 +49,6 @@ var Home = (function (_super) {
         //获取用户相关信息
         this.getUserInfo();
         //首页显示广告
-        //test
         this.addChild(new Advert(this.stage.stageWidth, this.stage.stageHeight, this._isPortraitScreen));
     };
     Home.prototype.getUserInfo = function () {
@@ -213,7 +217,7 @@ var Home = (function (_super) {
         else {
             $("#guangao").hide();
             this.removeChildren();
-            this.addChild(new Game());
+            this.addChild(new Games());
         }
     };
     //检查是否关注
@@ -230,7 +234,7 @@ var Home = (function (_super) {
                 if (this._playCount > 0) {
                     $("#guangao").hide();
                     this.removeChildren();
-                    this.addChild(new Game());
+                    this.addChild(new Games());
                 }
             }
             else if (result["code"] == 2) {

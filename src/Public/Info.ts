@@ -1,6 +1,6 @@
 class Info  {
-    public  _url = "//www.beisu100.com/beisuapp/";	// 线上环境
-    // public _url = "//ceshi.beisu100.com/beisuapp/";	//测试环境
+    // public  _url = "//www.beisu100.com/beisuapp/";	// 线上环境
+    public _url = "//ceshi.beisu100.com/beisuapp/";	//测试环境
     
     public _hasAttention      = this._url + "uservote/isguanzhu";	     //是否关注
     public _canPalyNumber     = this._url + "typos/num";	             //剩余挑战次数

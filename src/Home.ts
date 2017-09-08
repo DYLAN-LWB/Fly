@@ -46,13 +46,12 @@ class Home extends egret.DisplayObjectContainer {
         this.getUserInfo();
         
         //首页显示广告
-        //test
         this.addChild(new Advert(this.stage.stageWidth, this.stage.stageHeight, this._isPortraitScreen));
     }
      public getUserInfo() {
 
         //test app url
-        // this._pageUrl = "http://ceshi.beisu100.com//actity/11/index.html?uid=3&key=1241ea11b7f3b5bf852b3bbc428ef209&isfrom=1&activitynum=11&timenum=1";
+        this._pageUrl = "http://ceshi.beisu100.com//actity/11/index.html?uid=3&key=1241ea11b7f3b5bf852b3bbc428ef209&isfrom=1&activitynum=11&timenum=1";
         // alert("this._pageUrl = " + this._pageUrl);
 
         //解析url参数
@@ -236,7 +235,7 @@ class Home extends egret.DisplayObjectContainer {
         } else { //app直接进入游戏页面
             $("#guangao").hide();
             this.removeChildren();
-            this.addChild(new Game());
+            this.addChild(new Games());
         }
     }
 
@@ -255,7 +254,7 @@ class Home extends egret.DisplayObjectContainer {
                 if (this._playCount > 0) { //已关注并且有游戏次数 进入游戏页面
                     $("#guangao").hide();
                     this.removeChildren();
-                    this.addChild(new Game());
+                    this.addChild(new Games());
                 } 
             } else if (result["code"] == 2) { //未关注 进入关注界面
                 this._rankButton.touchEnabled = true;

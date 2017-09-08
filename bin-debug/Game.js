@@ -39,7 +39,7 @@ var Game = (function (_super) {
         //常量设置
         this._stageW = this.stage.stageWidth;
         this._stageH = this.stage.stageHeight;
-        this._scends = 180;
+        // this._scends = 180;
         this._score = 0;
         this._isFall = true;
         this._info._vuid = localStorage.getItem("vuid").replace(/"/g, "");
@@ -47,28 +47,16 @@ var Game = (function (_super) {
         this._info._isfrom = localStorage.getItem("isfrom").replace(/"/g, "");
         this._info._timenum = localStorage.getItem("timenum").replace(/"/g, "");
         this._info._activitynum = localStorage.getItem("activitynum").replace(/"/g, "");
-        //test
-        // let _idiomArray = ["1111","2222","3333","4444","5555","6666","7777"];
-        // Array.prototype.push.apply(this._allIdiomArray, _idiomArray); 	//将请求到的单词添加到大数组
-        // this._currentIdiomArray.push(this._allIdiomArray[0]);	//将前两个添加到数组
-        // this._currentIdiomArray.push(this._allIdiomArray[1]);
-        // this._allIdiomArray.splice(0,2);	//添加完后删除
-        // let characterString = this._currentIdiomArray.join().replace(/,/g,""); 	//将单词数组转为字符串,并且去掉所有逗号
-        // let character = characterString.split("");	//将字母字符串转为数组
-        // Array.prototype.push.apply(this._characterArray, character); 	//追加到字母数组
-        // this.setupViews();
-        // this.addTouchEvent();
-        //http://ceshi.beisu100.com/liweibin/Fly/index.html
         //减游戏次数
         this.minusGameCount();
     };
     Game.prototype.setupViews = function () {
         var sound = new egret.Sound();
         sound.addEventListener(egret.Event.COMPLETE, function () {
-            this._backgroundChannel = sound.play(0, 0);
+            this._backgroundChannel = sound.play(0, 1);
             this._backgroundChannel.volume = 0.8;
         }, this);
-        // sound.load("resource/sound/bg.mp3");
+        sound.load("resource/sound/bg.mp3");
         //背景图片
         var bg = new Bitmap("bg_jpg");
         bg.x = 0;
@@ -83,11 +71,11 @@ var Game = (function (_super) {
         this._background.width = 3 * this._stageW;
         this._background.height = this._stageH;
         this.addChild(this._background);
-        var _left = new egret.Sprite;
-        _left.graphics.beginFill(0xffffff);
-        _left.graphics.drawRect(140, 200, 3, this._stageH - 300);
-        _left.graphics.endFill();
-        this._background.addChild(_left);
+        // var _left = new egret.Sprite;
+        // _left.graphics.beginFill(0xffffff);
+        // _left.graphics.drawRect(140, 200, 3, this._stageH-300);
+        // _left.graphics.endFill();
+        // this._background.addChild(_left);
         //添加障碍物
         this.addBarrier();
         //添加文字相关
@@ -183,22 +171,22 @@ var Game = (function (_super) {
         this._scoreTF.fontFamily = "Microsoft YaHei";
         this.addChild(this._scoreTF);
         //倒计时提示
-        this._scendsTF = new egret.TextField();
-        this._scendsTF.x = this.stage.stageWidth * 0.85;
-        this._scendsTF.y = 35;
-        this._scendsTF.width = this.stage.stageWidth * 0.15;
-        this._scendsTF.height = 55;
-        this._scendsTF.fontFamily = "Microsoft YaHei";
-        this._scendsTF.textColor = 0xff6c14;
-        this._scendsTF.textAlign = egret.HorizontalAlign.CENTER;
-        this._scendsTF.size = 40;
-        this._scendsTF.text = this._scends;
-        this.addChild(this._scendsTF);
-        //游戏计时器
-        this._gameTimer = new egret.Timer(1000, this._scends);
-        this._gameTimer.addEventListener(egret.TimerEvent.TIMER, this.gameTimerFunc, this);
-        this._gameTimer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, this.gameTimerCompleteFunc, this);
-        this._gameTimer.start();
+        // this._scendsTF = new egret.TextField();
+        // this._scendsTF.x = this.stage.stageWidth*0.85;
+        // this._scendsTF.y = 35;
+        // this._scendsTF.width = this.stage.stageWidth*0.15;
+        // this._scendsTF.height = 55;
+        // this._scendsTF.fontFamily = "Microsoft YaHei"
+        // this._scendsTF.textColor = 0xff6c14;
+        // this._scendsTF.textAlign =  egret.HorizontalAlign.CENTER;
+        // this._scendsTF.size = 40;
+        // this._scendsTF.text = this._scends;
+        // this.addChild(this._scendsTF);
+        // //游戏计时器
+        // this._gameTimer = new egret.Timer(1000, this._scends);
+        // this._gameTimer.addEventListener(egret.TimerEvent.TIMER, this.gameTimerFunc, this);
+        // this._gameTimer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, this.gameTimerCompleteFunc, this);
+        // this._gameTimer.start();
     };
     //添加障碍物
     Game.prototype.addBarrier = function () {
@@ -256,26 +244,25 @@ var Game = (function (_super) {
             _charBg.height = 80;
             this._background.addChild(_charBg);
             this._background.addChild(_characterTF);
-            //添加到数组
-            this._characterTFArray.push(_characterTF);
-            this._characterBgArray.push(_charBg);
             //和所有文字tf比较位置
             for (var index_1 = 0; index_1 < this._characterTFArray.length; index_1++) {
-                var characterTF = this._characterTFArray[index_1];
-                var characterBg = this._characterBgArray[index_1];
-                var spaceX = Math.abs(characterTF.x - _characterTF.x);
-                var spaceY = Math.abs(characterTF.y - _characterTF.y);
-                if (spaceX < 200 && spaceY < 200) {
+                var oldTF = this._characterTFArray[index_1];
+                var spaceX = Math.abs(oldTF.x - _characterTF.x);
+                var spaceY = Math.abs(oldTF.y - _characterTF.y);
+                if (spaceX < 150 && spaceY < 150) {
                     _characterTF.y += _characterTF.y > this._stageH / 2 ? -300 : 300;
                     _charBg.y += _charBg.y > this._stageH / 2 ? -300 : 300;
                 }
             }
+            //添加到数组
+            this._characterTFArray.push(_characterTF);
+            this._characterBgArray.push(_charBg);
             //和障碍物xy值比较,避免重叠
             for (var index_2 = 0; index_2 < this._barrierArray.length; index_2++) {
                 var barrier = this._barrierArray[index_2];
                 var spaceX = Math.abs(barrier.x - _characterTF.x);
                 var spaceY = Math.abs(barrier.y - _characterTF.y);
-                if (spaceX < 200 && spaceY < 200) {
+                if (spaceX < 150 && spaceY < 150) {
                     _characterTF.y += _characterTF.y > this._stageH / 2 ? -300 : 300;
                     _charBg.y += _charBg.y > this._stageH / 2 ? -300 : 300;
                 }
@@ -396,6 +383,12 @@ var Game = (function (_super) {
         }
     };
     Game.prototype.hitAction = function (index) {
+        var sound = new egret.Sound();
+        sound.addEventListener(egret.Event.COMPLETE, function () {
+            var channel = sound.play(0, 1);
+            channel.volume = 0.9;
+        }, this);
+        sound.load("resource/sound/jump.mp3");
         this._currentTF.text += this._characterTFArray[index].text;
         //删除该文字的相关数据
         this._background.removeChild(this._characterTFArray[index]); //移除碰撞文字UI
@@ -415,30 +408,40 @@ var Game = (function (_super) {
         var newRemind = "";
         this._currentTF.text = "";
         var _isRight = false;
-        //查看是否在当前成语数组
-        for (var index = 0; index < this._currentIdiomArray.length; index++) {
-            var string = this._currentIdiomArray[index];
+        var _loop_1 = function (index) {
+            var string = this_1._currentIdiomArray[index];
             if (currentString == string) {
                 console.log("吃对了");
-                this.plusScore(1);
-                this._score += 1;
-                this._scoreTF.text = this._score + "分";
+                var sound_1 = new egret.Sound();
+                sound_1.addEventListener(egret.Event.COMPLETE, function () {
+                    var channel = sound_1.play(0, 1);
+                    channel.volume = 0.9;
+                }, this_1);
+                sound_1.load("resource/sound/rocket.mp3");
+                this_1.plusScore(1);
+                this_1._score += 1;
+                this_1._scoreTF.text = this_1._score + "分";
                 _isRight = true;
-                this._currentIdiomArray.splice(index, 1); //移除该成语数据
-                this._currentIdiomArray.push(this._allIdiomArray[0]); //添加新数据
+                this_1._currentIdiomArray.splice(index, 1); //移除该成语数据
+                this_1._currentIdiomArray.push(this_1._allIdiomArray[0]); //添加新数据
                 //吃对成语增加新的, 吃错增加刚才吃过的
-                var characterString = this._allIdiomArray[0].replace(/,/g, ""); //将单词数组转为字符串,并且去掉所有逗号
+                var characterString = this_1._allIdiomArray[0].replace(/,/g, ""); //将单词数组转为字符串,并且去掉所有逗号
                 newCharacter = characterString.split(""); //将字母字符串转为数组
-                Array.prototype.push.apply(this._characterArray, newCharacter); //追加到字母数组
-                newRemind = this._allIdiomArray[0]; //新增加的提示成语
-                this._allIdiomArray.splice(0, 1); //添加第一个之后删除
-                if (this._allIdiomArray.length < 5) {
-                    this.getWords(2);
+                Array.prototype.push.apply(this_1._characterArray, newCharacter); //追加到字母数组
+                newRemind = this_1._allIdiomArray[0]; //新增加的提示成语
+                this_1._allIdiomArray.splice(0, 1); //添加第一个之后删除
+                if (this_1._allIdiomArray.length < 5) {
+                    this_1.getWords(2);
                 }
             }
             else {
                 console.log("吃错了");
             }
+        };
+        var this_1 = this;
+        //查看是否在当前成语数组
+        for (var index = 0; index < this._currentIdiomArray.length; index++) {
+            _loop_1(index);
         }
         if (_isRight == false) {
             console.log("吃错了");
@@ -466,26 +469,25 @@ var Game = (function (_super) {
             _charBg.height = 80;
             this._background.addChild(_charBg);
             this._background.addChild(_characterTF);
-            //添加到数组
-            this._characterTFArray.push(_characterTF);
-            this._characterBgArray.push(_charBg);
             //和所有文字tf比较位置
             for (var index = 0; index < this._characterTFArray.length; index++) {
-                var characterTF = this._characterTFArray[index];
-                var characterBg = this._characterBgArray[index];
-                var spaceX = Math.abs(characterTF.x - _characterTF.x);
-                var spaceY = Math.abs(characterTF.y - _characterTF.y);
-                if (spaceX < 200 && spaceY < 200) {
+                var oldTF = this._characterTFArray[index];
+                var spaceX = Math.abs(oldTF.x - _characterTF.x);
+                var spaceY = Math.abs(oldTF.y - _characterTF.y);
+                if (spaceX < 150 && spaceY < 150) {
                     _characterTF.y += _characterTF.y > this._stageH / 2 ? -300 : 300;
                     _charBg.y += _charBg.y > this._stageH / 2 ? -300 : 300;
                 }
             }
+            //添加到数组
+            this._characterTFArray.push(_characterTF);
+            this._characterBgArray.push(_charBg);
             //和障碍物xy值比较,避免重叠
             for (var index = 0; index < this._barrierArray.length; index++) {
                 var barrier = this._barrierArray[index];
                 var spaceX = Math.abs(barrier.x - _characterTF.x);
                 var spaceY = Math.abs(barrier.y - _characterTF.y);
-                if (spaceX < 200 && spaceY < 200) {
+                if (spaceX < 150 && spaceY < 150) {
                     _characterTF.y += _characterTF.y > this._stageH / 2 ? -300 : 300;
                     _charBg.y += _charBg.y > this._stageH / 2 ? -300 : 300;
                 }
@@ -540,33 +542,41 @@ var Game = (function (_super) {
         if (_isHit) {
             this._clear.x = Math.random() * (3 * this._stageW - 800) + 400; //随机x 300 ~ 3W-600	
             this._clear.y = Math.random() * (this._stageH - 600) + 300; //随机y 300 ~ H-600	
+            //和所有文字tf比较位置
+            for (var index = 0; index < this._characterTFArray.length; index++) {
+                var oldTF = this._characterTFArray[index];
+                var spaceX = Math.abs(this._clear.x - oldTF.x);
+                var spaceY = Math.abs(this._clear.y - oldTF.y);
+                if (spaceX < 150 && spaceY < 150) {
+                    this._clear.y += this._clear.y > this._stageH / 2 ? -300 : 300;
+                    this._clear.y += this._clear.y > this._stageH / 2 ? -300 : 300;
+                }
+            }
             this.addNewCharacter();
         }
     };
     //每秒计时
     Game.prototype.gameTimerFunc = function () {
-        this._scends--;
-        this._scendsTF.text = this._scends;
+        // this._scends--;
+        // this._scendsTF.text = this._scends;
         //剩5秒时播放倒计时音乐
-        if (this._scends == 5) {
-            var sound_1 = new egret.Sound();
-            sound_1.addEventListener(egret.Event.COMPLETE, function () {
-                this._countdownChannel = sound_1.play(0, 0);
-            }, this);
-            sound_1.load("resource/sound/countdown.mp3");
-        }
+        //  if (this._scends == 5) {
+        //  	let sound = new egret.Sound();
+        // 	sound.addEventListener(egret.Event.COMPLETE, function() {
+        // 		this._countdownChannel = sound.play(0,0);
+        // 	}, this);
+        // 	sound.load("resource/sound/countdown.mp3");
+        // }
     };
     //游戏结束
     Game.prototype.gameTimerCompleteFunc = function () {
         this._person.removeEventListener(egret.Event.ENTER_FRAME, this.freeFall, this);
         this._person.removeEventListener(egret.Event.ENTER_FRAME, this.touchChangeLocation, this);
         this.removeTouchEvent();
-        if (this._countdownChannel)
-            this._countdownChannel.stop();
+        // if (this._countdownChannel) this._countdownChannel.stop();
         if (this._backgroundChannel)
             this._backgroundChannel.stop();
-        if (this._gameTimer)
-            this._gameTimer.stop();
+        // if (this._gameTimer) this._gameTimer.stop();
         //气泡爆炸动画
         this._bubble.texture = RES.getRes("baozha1_png");
         this._bubble.width = 300;
@@ -755,7 +765,7 @@ var Game = (function (_super) {
         // this._remindTFArray.splice(0, this._remindTFArray.length);
         this._barrierArray.splice(0, this._barrierArray.length);
         //重新添加
-        this._scends = 180;
+        // this._scends = 180;
         this._score = 0;
         this._isFall = true;
         this._isHitBarrier = false;
