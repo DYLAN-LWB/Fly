@@ -67,7 +67,7 @@ class Game extends egret.DisplayObjectContainer {
 
 		let sound = new egret.Sound();
 		sound.addEventListener(egret.Event.COMPLETE, function() {
-			this._backgroundChannel = sound.play(0,1);
+			this._backgroundChannel = sound.play(0,0);
 			this._backgroundChannel.volume = 0.8;
 		}, this);
 		sound.load("resource/sound/bg.mp3");
