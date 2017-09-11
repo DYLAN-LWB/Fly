@@ -32,12 +32,18 @@ class Games extends egret.DisplayObjectContainer {
 	private _characterImgArray = [];	//textField图片数组
 	private _characterTFArray = [];		//textField数组
 
+	// private _barrierArray = []; //障碍物数组
+	private _barrierBgArray = []; //障碍物数组
+
+	private _gameTimer: egret.Timer;	//游戏计时器,来计算米数
 	private _score;			//分数
 	private _scoreTF;		//分数文字
 	private _currentTF;		//当前吃到的成语
 
 	private _isHitBarrier = false;		//是否碰撞了障碍物
+
 	private _clear = new Bitmap("magic_png");	//清空
+	private _clearBg = new egret.Sprite();
 
 	private createGameScene() {
 
@@ -124,11 +130,20 @@ class Games extends egret.DisplayObjectContainer {
 		this.addEventListener(egret.Event.ENTER_FRAME, this.textMoveEvent, this);
 
 		//清空
-		this._clear.x = 1200;
-		this._clear.y = Math.random()*(this._stageH - 600) + 300; 
+		this._clearBg.x = 1200;
+		this._clearBg.y = Math.random()*(this._stageH - 600) + 300;
+		this._clearBg.width = 140;
+		this._clearBg.height = 140;
+		this._clearBg.graphics.beginFill(0xffffff,0.001);
+		this._clearBg.graphics.drawRect(0, 0, 160, 160);
+		this._clearBg.graphics.endFill();
+		this.addChild(this._clearBg);
+
+		this._clear.x = 30;
+		this._clear.y = 30; 
 		this._clear.width = 80;
 		this._clear.height = 80;
-		this.addChild(this._clear);
+		this._clearBg.addChild(this._clear);
 
 		//已经吃的提示
 		let my_word  = new egret.TextField;
@@ -170,8 +185,14 @@ class Games extends egret.DisplayObjectContainer {
         this._scoreTF.text = this._score + "分";
 		this._scoreTF.fontFamily = "Microsoft YaHei"
         this.addChild(this._scoreTF);
-	}
 
+		this._gameTimer = new egret.Timer(2000, 99999);
+		this._gameTimer.addEventListener(egret.TimerEvent.TIMER, function() {
+			this._score++;
+			this._scoreTF.text = this._score;
+		}, this);
+        this._gameTimer.start();
+	}
 
 	private _space;
 	//添加随机文字
@@ -216,15 +237,43 @@ class Games extends egret.DisplayObjectContainer {
 			this._characterImgArray.push(textImg);
 			this._characterTFArray.push(textTF);
 		}
+
+		for(var num = 0; num < 4; num++) {
+
+			let barBg = new egret.Sprite;
+			barBg.x = this._person.x + this._space*(num+1) + this._space/2;
+			barBg.y = Math.random()*(this._stageH - 500) + 300;
+			barBg.width = 140;
+			barBg.height = 140;
+			barBg.graphics.beginFill(0xffffff,0.001);
+			barBg.graphics.drawCircle(75, 75, 75);
+		
+			barBg.graphics.endFill();
+			this.addChild(barBg);
+
+			let _barrier  = new Bitmap("monster_png");
+			_barrier.x = 30;
+			_barrier.y = 30;
+			_barrier.width = 80;
+			_barrier.height = 80;
+			barBg.addChild(_barrier);
+
+			this._barrierBgArray.push(barBg);
+		}
 	}
+
+	private _speed_up = false;
 
 	//文字向左移动事件
 	private textMoveEvent() {
 		
+		let speedup = 100;
+		let defaultspeed = 5;
+
 		//移动文字
 		for(var index = 0; index < this._characterBgArray.length; index++) {
 			var tfBg = this._characterBgArray[index];
-			tfBg.x -= 4;
+			tfBg.x -= this._speed_up ? speedup : defaultspeed;
 
 			//移动到最左边之后,删除他,并在末尾添加一个新的
 			if(tfBg.x < -100) {
@@ -232,13 +281,58 @@ class Games extends egret.DisplayObjectContainer {
 			}
 		}
 
+		//移动障碍物
+		for(var index = 0; index < this._barrierBgArray.length; index++) {
+			var barrier = this._barrierBgArray[index];
+			barrier.x -= this._speed_up ? speedup : defaultspeed;
+
+			barrier.alpha = this._speed_up ? 0 : 1;
+
+			//移动到最左边之后,删除他,并在末尾添加一个新的
+			if(barrier.x < -100) {
+				this.addNewBarrier(index);
+			}
+		}
+
 		//移动清空
-		this._clear.x -= 4;
-		if(this._clear.x < -100) {
-			this._clear.x = 1100;
-			this._clear.y = Math.random()*(this._stageH - 600) + 300; 
+		this._clearBg.x -= this._speed_up ? speedup : defaultspeed;
+		if(this._clearBg.x < -100) {
+			this._clearBg.x = 1300;
+			this._clearBg.y = Math.random()*(this._stageH - 600) + 300; 
 		}
 	}
+
+	private addNewBarrier(index){
+		var barrierBg = this._barrierBgArray[index];
+		this.removeChild(barrierBg);
+
+		//拿到最后一个,并在后边添加一个新的
+		var lastBar = this._barrierBgArray[this._barrierBgArray.length-1];
+		var lastX = lastBar.x;
+
+
+		let barBg = new egret.Sprite;
+		barBg.x = lastX + this._space;
+		barBg.y = Math.random()*(this._stageH - 500) + 300;
+		barBg.width = 140;
+		barBg.height = 140;
+		barBg.graphics.beginFill(0xffffff,0.001);
+		barBg.graphics.drawRect(0, 0, 160, 160);
+		barBg.graphics.endFill();
+		this.addChild(barBg);
+
+		let _barrier  = new Bitmap("monster_png");
+		_barrier.x = 30;
+		_barrier.y = 30;
+		_barrier.width = 80;
+		_barrier.height = 80;
+		barBg.addChild(_barrier);
+
+		this._barrierBgArray.splice(index,1);
+
+		this._barrierBgArray.push(barBg);
+	}
+
 
 	private addNewCharacter(index){
 		console.log(index);
@@ -379,12 +473,16 @@ class Games extends egret.DisplayObjectContainer {
 			this._bubble.y = this._person.y - 20;
 		} 
 		
-		//添加碰撞检测
-		this.checkHit();
+		if(this._speed_up == false) {
+			//添加碰撞检测
+			this.checkHit();
+			//清空功能碰撞检测
+			this.checkClear();
+		}
+
 		//障碍物碰撞检测
 		this.checkBarrierHit();
-		//清空功能碰撞检测
-		this.checkClear();
+
 	}
 
 	//碰撞检测
@@ -420,6 +518,21 @@ class Games extends egret.DisplayObjectContainer {
 				if(this._currentTF.text == this._allIdiomArray[ind]){
 					this.plusScore(2);
 					this._currentTF.text = "";
+					this._speed_up = true;
+
+					let timer = new egret.Timer(3000, 1);
+					timer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, function() {
+						this._speed_up = false;
+					}, this);
+					timer.start();
+
+
+					let score = new egret.Timer(100, 30);
+					score.addEventListener(egret.TimerEvent.TIMER, function() {
+						this._score += 1;
+						this._scoreTF.text = this._score;
+					}, this);
+					score.start();
 				} 
 			}
 		}
@@ -435,13 +548,28 @@ class Games extends egret.DisplayObjectContainer {
 			}
 			this._isHitBarrier = true;		
 		}
+
+		//未加速时才检测该碰撞
+		if(this._speed_up == false) {
+			for(let index = 0; index < this._barrierBgArray.length; index++) {
+				let bar = this._barrierBgArray[index];
+				let _isHit: boolean = bar.hitTestPoint(this._person.x+this._person.width/2, this._person.y+this._person.height);
+				if(_isHit) {
+					if(this._isHitBarrier == false) {
+						this.gameTimerCompleteFunc();
+					}
+					this._isHitBarrier = true;		
+				} 
+			}
+		}
+			
 	}
 
 	private checkClear () {
-		let _isHit: boolean = this._clear.hitTestPoint(this._person.x+this._person.width/2, this._person.y+this._person.height);
+		let _isHit: boolean = this._clearBg.hitTestPoint(this._person.x+this._person.width/2, this._person.y+this._person.height);
 		if(_isHit) {
-			this._clear.x = 1100;
-			this._clear.y = Math.random()*(this._stageH - 600) + 300; 
+			this._clearBg.x = 1300;
+			this._clearBg.y = Math.random()*(this._stageH - 600) + 300; 
 			this._currentTF.text = "";
 		} 
 	}
@@ -454,6 +582,7 @@ class Games extends egret.DisplayObjectContainer {
 		this.removeTouchEvent();
 
 		if (this._backgroundChannel) this._backgroundChannel.stop();
+		if (this._gameTimer) this._gameTimer.stop();
 
 		//气泡爆炸动画
 		this._bubble.texture = RES.getRes("baozha1_png");
@@ -461,8 +590,8 @@ class Games extends egret.DisplayObjectContainer {
 		this._bubble.height = 300;
 		this._bubble.anchorOffsetX = 180/2;
 		this._bubble.anchorOffsetY = 200/2;
-		this._bubble.x = this._person.x-110;
-		this._bubble.y = this._person.y-110;
+		this._bubble.x = this._person.x-20;
+		this._bubble.y = this._person.y-20;
 
 		let timer1: egret.Timer = new egret.Timer(200, 1);
 		timer1.addEventListener(egret.TimerEvent.TIMER_COMPLETE,function() {
@@ -591,6 +720,7 @@ class Games extends egret.DisplayObjectContainer {
 
 	//接口-游戏结束
     private gameOver() {
+
         var params = "?score=" + this._score + 
 					 "&vuid=" + this._info._vuid +
 					 "&key=" + this._info._key + 
@@ -638,6 +768,7 @@ class Games extends egret.DisplayObjectContainer {
 		this._characterArray.splice(0, this._characterArray.length);
 		this._characterTFArray.splice(0, this._characterTFArray.length);
 		this._characterBgArray.splice(0, this._characterBgArray.length);
+		this._barrierBgArray.splice(0, this._barrierBgArray.length);
 
 
 		//重新添加
