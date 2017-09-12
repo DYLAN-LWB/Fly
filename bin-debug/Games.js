@@ -32,7 +32,11 @@ var Games = (function (_super) {
         _this._barrierBgArray = []; //障碍物数组
         _this._isHitBarrier = false; //是否碰撞了障碍物
         _this._clear = new Bitmap("magic_png"); //清空
-        _this._speed_up = false;
+        _this._clearBg = new egret.Sprite();
+        _this._speed_up = false; //是否是加速状态(加速状态不检测障碍物碰撞)
+        _this._protect = false; //加速状态结束后有1秒的保护状态,避免结束时直接碰到障碍物
+        _this._default_speed = 5; //默认移动速度
+        _this._fast_speed = 100; //加速时的速度(修改速度时,需修改执行次数)
         _this.addEventListener(egret.Event.ADDED_TO_STAGE, _this.createGameScene, _this);
         return _this;
     }
@@ -108,11 +112,19 @@ var Games = (function (_super) {
         //文字移动
         this.addEventListener(egret.Event.ENTER_FRAME, this.textMoveEvent, this);
         //清空
-        this._clear.x = 1200;
-        this._clear.y = Math.random() * (this._stageH - 600) + 300;
+        this._clearBg.x = 1200;
+        this._clearBg.y = Math.random() * (this._stageH - 600) + 300;
+        this._clearBg.width = 140;
+        this._clearBg.height = 140;
+        this._clearBg.graphics.beginFill(0xffffff, 0.001);
+        this._clearBg.graphics.drawRect(0, 0, 160, 160);
+        this._clearBg.graphics.endFill();
+        this.addChild(this._clearBg);
+        this._clear.x = 30;
+        this._clear.y = 30;
         this._clear.width = 80;
         this._clear.height = 80;
-        this.addChild(this._clear);
+        this._clearBg.addChild(this._clear);
         //已经吃的提示
         var my_word = new egret.TextField;
         my_word.x = 0;
@@ -198,15 +210,15 @@ var Games = (function (_super) {
             var barBg = new egret.Sprite;
             barBg.x = this._person.x + this._space * (num + 1) + this._space / 2;
             barBg.y = Math.random() * (this._stageH - 500) + 300;
-            barBg.width = 140;
-            barBg.height = 140;
+            barBg.width = 120;
+            barBg.height = 120;
             barBg.graphics.beginFill(0xffffff, 0.001);
             barBg.graphics.drawCircle(75, 75, 75);
             barBg.graphics.endFill();
             this.addChild(barBg);
             var _barrier = new Bitmap("monster_png");
-            _barrier.x = 30;
-            _barrier.y = 30;
+            _barrier.x = 20;
+            _barrier.y = 20;
             _barrier.width = 80;
             _barrier.height = 80;
             barBg.addChild(_barrier);
@@ -215,12 +227,10 @@ var Games = (function (_super) {
     };
     //文字向左移动事件
     Games.prototype.textMoveEvent = function () {
-        var speedup = 100;
-        var defaultspeed = 5;
         //移动文字
         for (var index = 0; index < this._characterBgArray.length; index++) {
             var tfBg = this._characterBgArray[index];
-            tfBg.x -= this._speed_up ? speedup : defaultspeed;
+            tfBg.x -= this._speed_up ? this._fast_speed : this._default_speed;
             //移动到最左边之后,删除他,并在末尾添加一个新的
             if (tfBg.x < -100) {
                 this.addNewCharacter(index);
@@ -229,20 +239,20 @@ var Games = (function (_super) {
         //移动障碍物
         for (var index = 0; index < this._barrierBgArray.length; index++) {
             var barrier = this._barrierBgArray[index];
-            barrier.x -= this._speed_up ? speedup : defaultspeed;
-            barrier.alpha = this._speed_up ? 0 : 1;
+            barrier.x -= this._speed_up ? this._fast_speed : this._default_speed;
             //移动到最左边之后,删除他,并在末尾添加一个新的
             if (barrier.x < -100) {
                 this.addNewBarrier(index);
             }
         }
         //移动清空
-        this._clear.x -= this._speed_up ? speedup : defaultspeed;
-        if (this._clear.x < -100) {
-            this._clear.x = 1100;
-            this._clear.y = Math.random() * (this._stageH - 600) + 300;
+        this._clearBg.x -= this._speed_up ? this._fast_speed : this._default_speed;
+        if (this._clearBg.x < -100) {
+            this._clearBg.x = 1300;
+            this._clearBg.y = Math.random() * (this._stageH - 600) + 300;
         }
     };
+    //增加新的障碍物
     Games.prototype.addNewBarrier = function (index) {
         var barrierBg = this._barrierBgArray[index];
         this.removeChild(barrierBg);
@@ -252,21 +262,22 @@ var Games = (function (_super) {
         var barBg = new egret.Sprite;
         barBg.x = lastX + this._space;
         barBg.y = Math.random() * (this._stageH - 500) + 300;
-        barBg.width = 140;
-        barBg.height = 140;
+        barBg.width = 120;
+        barBg.height = 120;
         barBg.graphics.beginFill(0xffffff, 0.001);
         barBg.graphics.drawRect(0, 0, 160, 160);
         barBg.graphics.endFill();
         this.addChild(barBg);
         var _barrier = new Bitmap("monster_png");
-        _barrier.x = 30;
-        _barrier.y = 30;
+        _barrier.x = 20;
+        _barrier.y = 20;
         _barrier.width = 80;
         _barrier.height = 80;
         barBg.addChild(_barrier);
         this._barrierBgArray.splice(index, 1);
         this._barrierBgArray.push(barBg);
     };
+    //增加新的文字
     Games.prototype.addNewCharacter = function (index) {
         console.log(index);
         //删除第一个
@@ -354,12 +365,18 @@ var Games = (function (_super) {
     //实时旋转引导箭头
     Games.prototype.rotationGuide = function () {
         this._guide.alpha = 1;
-        this._guide.x = this._touchX;
+        this._guide.x = this._person.x;
         this._guide.y = this._touchY;
         //计算触摸点和当前对象的点构成的连线的夹角弧度 Math.atan2(y2-y1,x2-x1)
         var radian = Math.atan2((this._touchPersonY + this._person.height / 2) - this._touchY, (this._touchPersonX + this._person.width / 2) - this._touchX);
         //把弧度转成角度
         var angle = radian * 180 / Math.PI;
+        if (this._touchY > this._person.y) {
+            angle = -90;
+        }
+        else {
+            angle = 90;
+        }
         //旋转箭头图片
         this._guide.rotation = angle;
     };
@@ -411,11 +428,17 @@ var Games = (function (_super) {
                     this.plusScore(2);
                     this._currentTF.text = "";
                     this._speed_up = true;
+                    this._protect = true;
                     var timer = new egret.Timer(3000, 1);
                     timer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, function () {
                         this._speed_up = false;
                     }, this);
                     timer.start();
+                    var timer1 = new egret.Timer(4000, 1);
+                    timer1.addEventListener(egret.TimerEvent.TIMER_COMPLETE, function () {
+                        this._protect = false;
+                    }, this);
+                    timer1.start();
                     var score = new egret.Timer(100, 30);
                     score.addEventListener(egret.TimerEvent.TIMER, function () {
                         this._score += 1;
@@ -436,7 +459,7 @@ var Games = (function (_super) {
             this._isHitBarrier = true;
         }
         //未加速时才检测该碰撞
-        if (this._speed_up == false) {
+        if (this._protect == false) {
             for (var index = 0; index < this._barrierBgArray.length; index++) {
                 var bar = this._barrierBgArray[index];
                 var _isHit = bar.hitTestPoint(this._person.x + this._person.width / 2, this._person.y + this._person.height);
@@ -450,10 +473,10 @@ var Games = (function (_super) {
         }
     };
     Games.prototype.checkClear = function () {
-        var _isHit = this._clear.hitTestPoint(this._person.x + this._person.width / 2, this._person.y + this._person.height);
+        var _isHit = this._clearBg.hitTestPoint(this._person.x + this._person.width / 2, this._person.y + this._person.height);
         if (_isHit) {
-            this._clear.x = 1100;
-            this._clear.y = Math.random() * (this._stageH - 600) + 300;
+            this._clearBg.x = 1300;
+            this._clearBg.y = Math.random() * (this._stageH - 600) + 300;
             this._currentTF.text = "";
         }
     };

@@ -45,6 +45,12 @@ class Games extends egret.DisplayObjectContainer {
 	private _clear = new Bitmap("magic_png");	//清空
 	private _clearBg = new egret.Sprite();
 
+
+	private _speed_up = false;	//是否是加速状态(加速状态不检测障碍物碰撞)
+	private _protect = false;	//加速状态结束后有1秒的保护状态,避免结束时直接碰到障碍物
+	private _default_speed = 5;	//默认移动速度
+	private _fast_speed = 100;	//加速时的速度(修改速度时,需修改执行次数)
+
 	private createGameScene() {
 
 		//常量设置
@@ -243,8 +249,8 @@ class Games extends egret.DisplayObjectContainer {
 			let barBg = new egret.Sprite;
 			barBg.x = this._person.x + this._space*(num+1) + this._space/2;
 			barBg.y = Math.random()*(this._stageH - 500) + 300;
-			barBg.width = 140;
-			barBg.height = 140;
+			barBg.width = 120;
+			barBg.height = 120;
 			barBg.graphics.beginFill(0xffffff,0.001);
 			barBg.graphics.drawCircle(75, 75, 75);
 		
@@ -252,8 +258,8 @@ class Games extends egret.DisplayObjectContainer {
 			this.addChild(barBg);
 
 			let _barrier  = new Bitmap("monster_png");
-			_barrier.x = 30;
-			_barrier.y = 30;
+			_barrier.x = 20;
+			_barrier.y = 20;
 			_barrier.width = 80;
 			_barrier.height = 80;
 			barBg.addChild(_barrier);
@@ -262,18 +268,14 @@ class Games extends egret.DisplayObjectContainer {
 		}
 	}
 
-	private _speed_up = false;
 
 	//文字向左移动事件
 	private textMoveEvent() {
 		
-		let speedup = 100;
-		let defaultspeed = 5;
-
 		//移动文字
 		for(var index = 0; index < this._characterBgArray.length; index++) {
 			var tfBg = this._characterBgArray[index];
-			tfBg.x -= this._speed_up ? speedup : defaultspeed;
+			tfBg.x -= this._speed_up ? this._fast_speed : this._default_speed;
 
 			//移动到最左边之后,删除他,并在末尾添加一个新的
 			if(tfBg.x < -100) {
@@ -284,9 +286,7 @@ class Games extends egret.DisplayObjectContainer {
 		//移动障碍物
 		for(var index = 0; index < this._barrierBgArray.length; index++) {
 			var barrier = this._barrierBgArray[index];
-			barrier.x -= this._speed_up ? speedup : defaultspeed;
-
-			barrier.alpha = this._speed_up ? 0 : 1;
+			barrier.x -= this._speed_up ? this._fast_speed : this._default_speed;
 
 			//移动到最左边之后,删除他,并在末尾添加一个新的
 			if(barrier.x < -100) {
@@ -295,13 +295,14 @@ class Games extends egret.DisplayObjectContainer {
 		}
 
 		//移动清空
-		this._clearBg.x -= this._speed_up ? speedup : defaultspeed;
+		this._clearBg.x -= this._speed_up ? this._fast_speed : this._default_speed;
 		if(this._clearBg.x < -100) {
 			this._clearBg.x = 1300;
 			this._clearBg.y = Math.random()*(this._stageH - 600) + 300; 
 		}
 	}
 
+	//增加新的障碍物
 	private addNewBarrier(index){
 		var barrierBg = this._barrierBgArray[index];
 		this.removeChild(barrierBg);
@@ -314,16 +315,16 @@ class Games extends egret.DisplayObjectContainer {
 		let barBg = new egret.Sprite;
 		barBg.x = lastX + this._space;
 		barBg.y = Math.random()*(this._stageH - 500) + 300;
-		barBg.width = 140;
-		barBg.height = 140;
+		barBg.width = 120;
+		barBg.height = 120;
 		barBg.graphics.beginFill(0xffffff,0.001);
 		barBg.graphics.drawRect(0, 0, 160, 160);
 		barBg.graphics.endFill();
 		this.addChild(barBg);
 
 		let _barrier  = new Bitmap("monster_png");
-		_barrier.x = 30;
-		_barrier.y = 30;
+		_barrier.x = 20;
+		_barrier.y = 20;
 		_barrier.width = 80;
 		_barrier.height = 80;
 		barBg.addChild(_barrier);
@@ -333,7 +334,7 @@ class Games extends egret.DisplayObjectContainer {
 		this._barrierBgArray.push(barBg);
 	}
 
-
+	//增加新的文字
 	private addNewCharacter(index){
 		console.log(index);
 
@@ -446,15 +447,24 @@ class Games extends egret.DisplayObjectContainer {
 	//实时旋转引导箭头
 	private rotationGuide() {
 		this._guide.alpha = 1;
-		this._guide.x = this._touchX;
+		this._guide.x = this._person.x;
 		this._guide.y = this._touchY;
 
 		//计算触摸点和当前对象的点构成的连线的夹角弧度 Math.atan2(y2-y1,x2-x1)
 		var radian = Math.atan2((this._touchPersonY+this._person.height/2)-this._touchY,(this._touchPersonX+this._person.width/2)-this._touchX);
 		//把弧度转成角度
 		var angle = radian * 180 / Math.PI;
+
+		if(this._touchY > this._person.y) {
+			angle = -90;
+		} else {
+			angle = 90;
+		}
+
 		//旋转箭头图片
 		this._guide.rotation = angle;
+
+
 	}
 
 	//触摸不松手或者移动时
@@ -482,7 +492,6 @@ class Games extends egret.DisplayObjectContainer {
 
 		//障碍物碰撞检测
 		this.checkBarrierHit();
-
 	}
 
 	//碰撞检测
@@ -519,12 +528,19 @@ class Games extends egret.DisplayObjectContainer {
 					this.plusScore(2);
 					this._currentTF.text = "";
 					this._speed_up = true;
+					this._protect = true;
 
 					let timer = new egret.Timer(3000, 1);
 					timer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, function() {
 						this._speed_up = false;
 					}, this);
 					timer.start();
+
+					let timer1 = new egret.Timer(4000, 1);
+					timer1.addEventListener(egret.TimerEvent.TIMER_COMPLETE, function() {
+						this._protect = false;
+					}, this);
+					timer1.start();
 
 
 					let score = new egret.Timer(100, 30);
@@ -550,7 +566,8 @@ class Games extends egret.DisplayObjectContainer {
 		}
 
 		//未加速时才检测该碰撞
-		if(this._speed_up == false) {
+		if(this._protect == false) {
+			
 			for(let index = 0; index < this._barrierBgArray.length; index++) {
 				let bar = this._barrierBgArray[index];
 				let _isHit: boolean = bar.hitTestPoint(this._person.x+this._person.width/2, this._person.y+this._person.height);
