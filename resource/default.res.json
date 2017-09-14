@@ -2,7 +2,7 @@
 	"groups": [
 		{
 			"name": "preload",
-			"keys": "description_json,countdown_mp3,bg_mp3,attention_png,black_png,davert_right_png,gamebody_json,person_png,ranking_png,shareGui_png,baozha1_png,baozha2_png,baozha3_png,ball1_png,ball2_png,bg_jpg,bg1_png,bg2_png,magic_png,monster_png,papaw_png,guide1_png,guide2_png,guide3_png,guide4_png,guide_png,guide_json,index_jpg,startgame_png,jump_mp3,rocket_mp3"
+			"keys": "description_json,countdown_mp3,bg_mp3,attention_png,black_png,davert_right_png,gamebody_json,person_png,ranking_png,shareGui_png,baozha1_png,baozha2_png,baozha3_png,ball1_png,ball2_png,bg_jpg,bg1_png,bg2_png,magic_png,monster_png,papaw_png,guide1_png,guide2_png,guide3_png,guide4_png,guide_png,guide_json,index_jpg,startgame_png,jump_mp3,rocket_mp3,bg12_png,bg22_png"
 		}
 	],
 	"resources": [
@@ -90,12 +90,12 @@
 		{
 			"name": "bg1_png",
 			"type": "image",
-			"url": "http://beisuapp.oss-cn-beijing.aliyuncs.com/uploads/game/1101/bg1.png"
+			"url": "game/bg1.png"
 		},
 		{
 			"name": "bg2_png",
 			"type": "image",
-			"url": "http://beisuapp.oss-cn-beijing.aliyuncs.com/uploads/game/1101/bg2.png"
+			"url": "game/bg2.png"
 		},
 		{
 			"name": "magic_png",
@@ -161,6 +161,16 @@
 			"name": "rocket_mp3",
 			"type": "sound",
 			"url": "sound/rocket.mp3"
+		},
+		{
+			"name": "bg12_png",
+			"type": "image",
+			"url": "game/bg1.png"
+		},
+		{
+			"name": "bg22_png",
+			"type": "image",
+			"url": "game/bg2.png"
 		}
 	]
 }

@@ -10,6 +10,7 @@ class Games extends egret.DisplayObjectContainer {
 	private _rands: string;		//随机字符串,提交分数时加	
 	private _tid: string;
 	private _normalAlert;
+	private _page = 1;	
 
 	private _stageW;	//舞台宽度
 	private _stageH;	//舞台高度
@@ -51,6 +52,12 @@ class Games extends egret.DisplayObjectContainer {
 	private _default_speed = 5;	//默认移动速度
 	private _fast_speed = 100;	//加速时的速度(修改速度时,需修改执行次数)
 
+
+	private _scends;					//游戏默认180秒
+	private _scendsTF: egret.TextField;		//倒计时文字
+	private _gameoverTimer: egret.Timer;			//游戏倒计时计时器
+	private _countdownChannel: egret.SoundChannel;	//倒计时结束的声音
+
 	private createGameScene() {
 
 		//常量设置
@@ -58,6 +65,7 @@ class Games extends egret.DisplayObjectContainer {
 		this._stageH = this.stage.stageHeight;
         this._score = 0;
 		this._isFall  = true;
+		this._scends = 180;
 
 		this._info._vuid = localStorage.getItem("vuid").replace(/"/g,"");
 		this._info._key = localStorage.getItem("key").replace(/"/g,"");
@@ -74,7 +82,7 @@ class Games extends egret.DisplayObjectContainer {
 		let sound = new egret.Sound();
 		sound.addEventListener(egret.Event.COMPLETE, function() {
 			this._backgroundChannel = sound.play(0,0);
-			this._backgroundChannel.volume = 0.8;
+			this._backgroundChannel.volume = 0.9;
 		}, this);
 		sound.load("resource/sound/bg.mp3");
 
@@ -89,14 +97,14 @@ class Games extends egret.DisplayObjectContainer {
 		//上边障碍物
 		this._topBarrier.x = 0;
 		this._topBarrier.y = 110;
-		this._topBarrier.width = this._stageW;
+		this._topBarrier.width = this._stageW*2;
 		this._topBarrier.height = 144;
 		this.addChild(this._topBarrier);
 
 		//下边障碍物
 		this._bottomBarrier.x = 0;
 		this._bottomBarrier.y = this._stageH- 144;
-		this._bottomBarrier.width = this._stageW;
+		this._bottomBarrier.width = this._stageW*2;
 		this._bottomBarrier.height = 144;
 		this.addChild(this._bottomBarrier);
 
@@ -192,24 +200,59 @@ class Games extends egret.DisplayObjectContainer {
 		this._scoreTF.fontFamily = "Microsoft YaHei"
         this.addChild(this._scoreTF);
 
-		this._gameTimer = new egret.Timer(2000, 99999);
+		this._gameTimer = new egret.Timer(1000, 99999);
 		this._gameTimer.addEventListener(egret.TimerEvent.TIMER, function() {
 			this._score++;
 			this._scoreTF.text = this._score;
 		}, this);
         this._gameTimer.start();
+
+		//倒计时提示
+		this._scendsTF = new egret.TextField();
+		this._scendsTF.x = this.stage.stageWidth*0.85;
+		this._scendsTF.y = 35;
+		this._scendsTF.width = this.stage.stageWidth*0.15;
+		this._scendsTF.height = 55;
+    	this._scendsTF.fontFamily = "Microsoft YaHei"
+        this._scendsTF.textColor = 0xff6c14;
+		this._scendsTF.textAlign =  egret.HorizontalAlign.CENTER;
+        this._scendsTF.size = 40;
+        this._scendsTF.text = this._scends;
+        this.addChild(this._scendsTF);
+
+		//游戏计时器
+		this._gameoverTimer = new egret.Timer(1000, this._scends);
+        this._gameoverTimer.addEventListener(egret.TimerEvent.TIMER, this.gameTimerFunc, this);
+        this._gameoverTimer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, this.gameTimerCompleteFunc, this);
+        this._gameoverTimer.start();
 	}
 
-	private _space;
+		//每秒计时
+	private gameTimerFunc () {
+		this._scends--;
+        this._scendsTF.text = this._scends;
+
+		//剩5秒时播放倒计时音乐
+		 if (this._scends == 5) {
+         	let sound = new egret.Sound();
+			sound.addEventListener(egret.Event.COMPLETE, function() {
+        		this._countdownChannel = sound.play(0,0);
+			}, this);
+			sound.load("resource/sound/countdown.mp3");
+        }
+	}
+
+	private _space;	//文字间隔
+	private _bar_space; //障碍物间隔
 	//添加随机文字
 	private addCharacter() {
 		this._space = this._stageW/2;
-
+		this._bar_space = this._stageW/2.3;
 		for(var index = 0; index < 8; index++) {
 
 			let tfBg = new egret.Sprite;
 			tfBg.x = this._person.x + this._space*(index+1);
-			tfBg.y = Math.random()*(this._stageH - 600) + 300;
+			tfBg.y = Math.random()*(this._stageH - 500) + 250;
 			tfBg.width = 160;
 			tfBg.height = 160;
 			tfBg.graphics.beginFill(0xffffff,0.001);
@@ -247,13 +290,12 @@ class Games extends egret.DisplayObjectContainer {
 		for(var num = 0; num < 4; num++) {
 
 			let barBg = new egret.Sprite;
-			barBg.x = this._person.x + this._space*(num+1) + this._space/2;
-			barBg.y = Math.random()*(this._stageH - 500) + 300;
+			barBg.x = this._person.x + this._bar_space*(num+1);
+			barBg.y = Math.random()*(this._stageH - 500) + 250;
 			barBg.width = 120;
 			barBg.height = 120;
 			barBg.graphics.beginFill(0xffffff,0.001);
-			barBg.graphics.drawCircle(75, 75, 75);
-		
+			barBg.graphics.drawCircle(60, 60, 60);
 			barBg.graphics.endFill();
 			this.addChild(barBg);
 
@@ -268,15 +310,21 @@ class Games extends egret.DisplayObjectContainer {
 		}
 	}
 
-
 	//文字向左移动事件
 	private textMoveEvent() {
 		
+		this._topBarrier.x -= this._speed_up ? this._fast_speed : this._default_speed;
+		this._bottomBarrier.x -= this._speed_up ? this._fast_speed : this._default_speed;
+
+		if((this._topBarrier.x == -this._stageW) || (this._topBarrier.x < -this._stageW)) this._topBarrier.x = 0;
+		if((this._bottomBarrier.x == -this._stageW) || (this._bottomBarrier.x < -this._stageW)) this._bottomBarrier.x = 0;
+
 		//移动文字
 		for(var index = 0; index < this._characterBgArray.length; index++) {
 			var tfBg = this._characterBgArray[index];
 			tfBg.x -= this._speed_up ? this._fast_speed : this._default_speed;
 
+			tfBg.alpha = this._speed_up ? 0.1 : 1;
 			//移动到最左边之后,删除他,并在末尾添加一个新的
 			if(tfBg.x < -100) {
 				this.addNewCharacter(index);
@@ -288,6 +336,8 @@ class Games extends egret.DisplayObjectContainer {
 			var barrier = this._barrierBgArray[index];
 			barrier.x -= this._speed_up ? this._fast_speed : this._default_speed;
 
+			barrier.alpha = this._speed_up ? 0.1 : 1;
+
 			//移动到最左边之后,删除他,并在末尾添加一个新的
 			if(barrier.x < -100) {
 				this.addNewBarrier(index);
@@ -296,6 +346,8 @@ class Games extends egret.DisplayObjectContainer {
 
 		//移动清空
 		this._clearBg.x -= this._speed_up ? this._fast_speed : this._default_speed;
+		this._clearBg.alpha = this._speed_up ? 0.1 : 1;
+
 		if(this._clearBg.x < -100) {
 			this._clearBg.x = 1300;
 			this._clearBg.y = Math.random()*(this._stageH - 600) + 300; 
@@ -311,14 +363,13 @@ class Games extends egret.DisplayObjectContainer {
 		var lastBar = this._barrierBgArray[this._barrierBgArray.length-1];
 		var lastX = lastBar.x;
 
-
 		let barBg = new egret.Sprite;
-		barBg.x = lastX + this._space;
-		barBg.y = Math.random()*(this._stageH - 500) + 300;
+		barBg.x = lastX + this._bar_space;
+		barBg.y = Math.random()*(this._stageH - 500) + 250;
 		barBg.width = 120;
 		barBg.height = 120;
 		barBg.graphics.beginFill(0xffffff,0.001);
-		barBg.graphics.drawRect(0, 0, 160, 160);
+		barBg.graphics.drawCircle(60, 60, 60);
 		barBg.graphics.endFill();
 		this.addChild(barBg);
 
@@ -351,7 +402,7 @@ class Games extends egret.DisplayObjectContainer {
 
 		let newTFBg = new egret.Sprite;
 		newTFBg.x = lastX + this._space;
-		newTFBg.y = Math.random()*(this._stageH - 600) + 300;
+		newTFBg.y = Math.random()*(this._stageH - 500) + 250;
 		newTFBg.width = 160;
 		newTFBg.height = 160;
 		newTFBg.graphics.beginFill(0xffffff,0.001);
@@ -379,14 +430,14 @@ class Games extends egret.DisplayObjectContainer {
 		newTextTF.text = this._characterArray[0];
 		newTFBg.addChild(newTextTF);
 
-
 		this._characterArray.splice(index,1);
 
 		this._characterBgArray.push(newTFBg);
 		this._characterImgArray.push(newTextImg);
 		this._characterTFArray.push(newTextTF);
 
-		if(this._characterArray.length < 10) {
+		if(this._characterArray.length < 20) {
+			this._page++;
 			this.getWords(2);
 		}
 	}
@@ -463,8 +514,6 @@ class Games extends egret.DisplayObjectContainer {
 
 		//旋转箭头图片
 		this._guide.rotation = angle;
-
-
 	}
 
 	//触摸不松手或者移动时
@@ -483,7 +532,7 @@ class Games extends egret.DisplayObjectContainer {
 			this._bubble.y = this._person.y - 20;
 		} 
 		
-		if(this._speed_up == false) {
+		if(this._protect == false) {
 			//添加碰撞检测
 			this.checkHit();
 			//清空功能碰撞检测
@@ -525,25 +574,33 @@ class Games extends egret.DisplayObjectContainer {
 			console.log(this._currentTF.text);
 			for(let ind = 0; ind < this._allIdiomArray.length; ind++){
 				if(this._currentTF.text == this._allIdiomArray[ind]){
-					this.plusScore(2);
+
 					this._currentTF.text = "";
 					this._speed_up = true;
 					this._protect = true;
 
-					let timer = new egret.Timer(3000, 1);
+					let sound = new egret.Sound();
+					sound.addEventListener(egret.Event.COMPLETE, function() {
+						let channel:egret.SoundChannel = sound.play(0,4);
+						channel.volume = 0.9;
+					}, this);
+					sound.load("resource/sound/rocket.mp3");
+
+
+					let timer = new egret.Timer(2000, 1);
 					timer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, function() {
 						this._speed_up = false;
 					}, this);
 					timer.start();
 
-					let timer1 = new egret.Timer(4000, 1);
+					let timer1 = new egret.Timer(4000, 1);	//2秒保护时间
 					timer1.addEventListener(egret.TimerEvent.TIMER_COMPLETE, function() {
 						this._protect = false;
 					}, this);
 					timer1.start();
 
-
-					let score = new egret.Timer(100, 30);
+					this.plusScore(20);
+					let score = new egret.Timer(100, 20);
 					score.addEventListener(egret.TimerEvent.TIMER, function() {
 						this._score += 1;
 						this._scoreTF.text = this._score;
@@ -579,7 +636,6 @@ class Games extends egret.DisplayObjectContainer {
 				} 
 			}
 		}
-			
 	}
 
 	private checkClear () {
@@ -598,8 +654,14 @@ class Games extends egret.DisplayObjectContainer {
 		this.removeEventListener(egret.Event.ENTER_FRAME, this.touchChangeLocation, this);
 		this.removeTouchEvent();
 
+		//提交游戏时间
+		this.plusScore(180 - this._scends);
+
 		if (this._backgroundChannel) this._backgroundChannel.stop();
 		if (this._gameTimer) this._gameTimer.stop();
+        if (this._countdownChannel) this._countdownChannel.stop();
+		if (this._backgroundChannel) this._backgroundChannel.stop();
+		if (this._gameoverTimer) this._gameoverTimer.stop();
 
 		//气泡爆炸动画
 		this._bubble.texture = RES.getRes("baozha1_png");
@@ -668,16 +730,15 @@ class Games extends egret.DisplayObjectContainer {
         }, this);
 	}
 
-
 	//接口-请求单词, 只在初次请求时添加UI
 	private getWords(type: number) {
-
 		let params = "?vuid=" + this._info._vuid + 
 					 "&key=" + this._info._key +
 					 "&timenum=" + this._info._timenum +
 					 "&activitynum=" + this._info._activitynum + 
 					 "&rands=" + this._rands + 
 					 "&isfrom=" + this._info._isfrom;
+					 
 		let request = new egret.HttpRequest();
         request.responseType = egret.HttpResponseType.TEXT;
         request.open(this._info._getWord + params, egret.HttpMethod.GET);
@@ -709,7 +770,7 @@ class Games extends egret.DisplayObjectContainer {
 			}
 		}, this);
 		request.addEventListener(egret.IOErrorEvent.IO_ERROR, function() {
-            alert("GetBallwords　post error : " + event);
+            // alert("GetBallwords　post error : " + event);
         }, this);
 	}
 	
@@ -731,13 +792,12 @@ class Games extends egret.DisplayObjectContainer {
 			let result = JSON.parse(request.response);
 		}, this);
 		request.addEventListener(egret.IOErrorEvent.IO_ERROR, function() {
-            alert("typostempjump　post error : " + event);
+            // alert("typostempjump　post error : " + event);
         }, this);
 	}
 
 	//接口-游戏结束
     private gameOver() {
-
         var params = "?score=" + this._score + 
 					 "&vuid=" + this._info._vuid +
 					 "&key=" + this._info._key + 
@@ -787,11 +847,12 @@ class Games extends egret.DisplayObjectContainer {
 		this._characterBgArray.splice(0, this._characterBgArray.length);
 		this._barrierBgArray.splice(0, this._barrierBgArray.length);
 
-
 		//重新添加
+		this._scends = 180;
         this._score = 0;
 		this._isFall  = true;
  		this._isHitBarrier = false;
+		this._page = 1;
 
 		this.minusGameCount();
     }
@@ -809,6 +870,4 @@ class Games extends egret.DisplayObjectContainer {
         }, this);
 		this.addChild(_shareGuide);
 	}
-
-
 }
